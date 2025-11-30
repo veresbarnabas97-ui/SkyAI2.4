@@ -1,0 +1,17 @@
+{
+  "last_analysis_date": "2025-11-30",
+  "analyses": {
+    "BTC/USDC": {
+      "trend": "Kezdeti adatok betöltése. (VÁRAKOZÁS)",
+      "level": "Kérlek, futtasd a /generateanalysis parancsot!"
+    },
+    "BNB/USDC": {
+      "trend": "Kezdeti adatok betöltése. (VÁRAKOZÁS)",
+      "level": "Kérlek, futtasd a /generateanalysis parancsot!"
+    },
+    "SOL/USDC": {
+      "trend": "Kezdeti adatok betöltése. (VÁRAKOZÁS)",
+      "level": "Kérlek, futtasd a /generateanalysis parancsot!"
+    }
+  }
+}
