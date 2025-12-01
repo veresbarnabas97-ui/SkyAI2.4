@@ -131,7 +131,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     cursor = conn.cursor()
     # Frissítés: user_id mint kulcs, join_date formázott stringként
     cursor.execute('INSERT OR IGNORE INTO users (user_id, username, join_date) VALUES (?, ?, ?)',
-                   (user.id, user.username, datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
+                    (user.id, user.username, datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
     conn.commit()
     conn.close()
     
@@ -165,28 +165,38 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     else:
         await update.message.reply_text(welcome_msg, reply_markup=reply_markup, parse_mode='Markdown')
 
-async def send_analysis(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    # ... btc_info betöltése (API hívásból vagy más forrásból)
+async def send_analysis(update: Update, context: ContextTypes.DEFAULT_TYPE, is_command=False):
+    """
+    Kiküldi az aktuális AI elemzést a felhasználó státuszának megfelelően.
+    """
+    user_id = update.effective_user.id
+    status = check_user_status(user_id) # Felhasználói státusz lekérése
     
-    # 🌟 JAVÍTÁS: Ellenőrizzük, hogy az 'probability' kulcs létezik-e, ÉS hogy btc_info szótár-e.
-    if isinstance(btc_info, dict) and 'probability' in btc_info:
-        probability = btc_info['probability']
-    else:
-        # Ha hiányzik a kulcs, alapértelmezett értékkel térünk vissza
-        probability = 'N/A'
-        # Érdemes naplózni, hogy mikor történt ez az eset
-        print("FIGYELEM: Hiányzó 'probability' kulcs a btc_info szótárban.")
-    
-    # Adatok lekérése a felhasználói státusz alapján (ami az ai_analyzer.py-ban kezeli a FREE/PRO logikát)
+    # Adatok lekérése a felhasználói státusz alapján 
+    # (A get_current_analysis() feltételezhetően a háttérben kezeli a FREE/PRO logikát, 
+    # de a PRO-nál több adatot ad vissza.)
     data = get_current_analysis(status)
+    
+    # Eltávolítottam a hibaokozó, rossz helyen lévő 'btc_info' ellenőrzést, 
+    # mivel az adatok a 'data' változóból kerülnek kinyerésre az alábbi logikában.
     
     if status == 'pro':
         msg = "🔍 **AKTÍV PRO SZIGNÁLOK (VALÓS IDEJŰ):**\n\n"
-        for pair, info in data.items():
-            icon = "🟢" if info['trend'] == 'BULLISH' else "🔴" if info['trend'] == 'BEARISH' else "⚪"
-            msg += f"{icon} **{pair}**: {info['trend']} ({info['probability']})\n"
-            msg += f"   └ {info['level']}\n\n"
         
+        # Ellenőrizzük, hogy van-e adat. Ha nincs, a data lehet egy üres szótár.
+        if not data:
+            msg += "Nincs elérhető adat. Kérjük, próbáld újra később vagy használd a /generateanalysis parancsot (ha admin vagy)."
+        else:
+            for pair, info in data.items():
+                icon = "🟢" if info['trend'] == 'BULLISH' else "🔴" if info['trend'] == 'BEARISH' else "⚪"
+                
+                # Biztonságos hozzáférés a valószínűséghez, ha hiányzik az ai_analyzer-ből
+                probability = info.get('probability', 'N/A') 
+                level = info.get('level', 'Nincs szint')
+                
+                msg += f"{icon} **{pair}**: {info['trend']} ({probability})\n"
+                msg += f"   └ {level}\n\n"
+            
         keyboard = [[InlineKeyboardButton("🔙 Vissza a Főmenübe", callback_data='start_menu')]]
         reply_markup = InlineKeyboardMarkup(keyboard)
         
@@ -195,11 +205,17 @@ async def send_analysis(update: Update, context: ContextTypes.DEFAULT_TYPE):
         msg += "A SkyAI csak a fő kereskedési párt (BTC) mutatja a FREE csomagban. Nézd meg a mai legfontosabb elemzésünket:\n\n"
         
         # Csak BTC adat mutatása 
+        # Feltételezzük, hogy a BTC/USDC a kulcs.
         btc_info = data.get('BTC/USDC', {'trend': 'Nincs adat', 'probability': '0%', 'level': 'Frissítés szükséges'})
-        icon = "🟢" if btc_info['trend'] == 'BULLISH' else "🔴" if btc_info['trend'] == 'BEARISH' else "⚪"
+        
+        # A KeyErrors elkerülése érdekében most már a 'btc_info' objektumot használjuk:
+        icon = "🟢" if btc_info.get('trend') == 'BULLISH' else "🔴" if btc_info.get('trend') == 'BEARISH' else "⚪"
         probability = btc_info.get('probability', 'N/A')
-        msg += f"{icon} **BTC/USDC**: {btc_info['trend']} ({probability})\n"
-        msg += f"   └ {btc_info['level']}\n\n"
+        trend = btc_info.get('trend', 'Nincs adat')
+        level = btc_info.get('level', 'Frissítés szükséges')
+
+        msg += f"{icon} **BTC/USDC**: {trend} ({probability})\n"
+        msg += f"   └ {level}\n\n"
         msg += "**Több kereskedési lehetőségért és részletesebb belépőkért frissíts PRO-ra!**\n\n"
         
         keyboard = [[InlineKeyboardButton("💎 PRO-ra Frissítés", callback_data='subscribe')]]
@@ -219,6 +235,7 @@ async def send_analysis(update: Update, context: ContextTypes.DEFAULT_TYPE):
         )
 
 async def signals_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    # A hiba elkerülése érdekében átadtuk az is_command=True-t a korrigált send_analysis-nek
     await send_analysis(update, context, is_command=True)
 
 async def subscribe_message(update: Update, context: ContextTypes.DEFAULT_TYPE, is_command=False):
@@ -272,7 +289,7 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if hasattr(update, 'message') and update.message:
         await update.message.reply_text(msg, reply_markup=reply_markup, parse_mode='Markdown')
     elif hasattr(update, 'callback_query') and update.callback_query:
-           await context.bot.edit_message_text(
+            await context.bot.edit_message_text(
             chat_id=update.callback_query.message.chat_id,
             message_id=update.callback_query.message.message_id,
             text=msg,
@@ -289,9 +306,9 @@ async def refresh_analysis_daily(context: ContextTypes.DEFAULT_TYPE) -> None:
     
     # Értesítés küldése az adminisztrátornak
     try:
-         await context.bot.send_message(chat_id=ADMIN_USER_ID, text=f"✅ Napi elemzés frissítve. {result_msg}")
+          await context.bot.send_message(chat_id=ADMIN_USER_ID, text=f"✅ Napi elemzés frissítve. {result_msg}")
     except Exception as e:
-         logger.error(f"Hiba az admin értesítésekor: {e}")
+          logger.error(f"Hiba az admin értesítésekor: {e}")
 
 # Kézi indítás adminisztrátor számára a napi elemzés frissítésére. (NameError javítása)
 async def admin_generate_analysis(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -334,13 +351,13 @@ async def admin_set_pro_status(update: Update, context: ContextTypes.DEFAULT_TYP
         
         # Opcionálisan: Értesítés küldése a felhasználónak
         try:
-             await context.bot.send_message(
+              await context.bot.send_message(
                  chat_id=target_user_id, 
                  text="🥳 **Gratulálunk!** A SkyAI PRO előfizetésed aktiválva lett. Kereskedj valós idejű szignálokkal!\n\n/signals",
                  parse_mode='Markdown'
-             )
+              )
         except Exception:
-             await update.message.reply_text(f"⚠️ Hiba a felhasználó értesítésekor (ID: {target_user_id}).")
+              await update.message.reply_text(f"⚠️ Hiba a felhasználó értesítésekor (ID: {target_user_id}).")
 
     except Exception:
         await update.message.reply_text(f"❌ Hibás formátum. Használd így: `/setpro <user_id> [hónap]`\nPl.: `/setpro 987654321 1`", parse_mode='Markdown')
@@ -352,13 +369,31 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     
     # Callback logika a főmenü irányítására
     if query.data == 'analysis':
-        await send_analysis(update, context)
+        # send_analysis hívása gombnyomásból, itt nem parancsról van szó
+        await send_analysis(update, context, is_command=False) 
     elif query.data == 'subscribe':
         await subscribe_message(update, context)
     elif query.data == 'help':
         await help_command(update, context) 
     elif query.data == 'start_menu':
         await start(update, context)
+
+# ----------------- HIBÁK GRACEFUL KEZELÉSE -----------------
+async def error_handler(update: object, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Logolja a hibát és küld egy értesítést az adminisztrátornak (ha lehetséges)."""
+    logger.error("Az update %s hibát okozott: %s", update, context.error)
+    
+    # Próbáljuk meg elküldeni a hibaüzenetet az adminnak
+    if ADMIN_USER_ID:
+        error_message = f"🚨 **KRITIKUS HIBA A BOTBAN** 🚨\n\n"
+        error_message += f"Függvény: {context.callback_name if hasattr(context, 'callback_name') else 'Nincs adat'}\n"
+        error_message += f"Hiba: `{context.error}`\n\n"
+        error_message += "Kérjük, ellenőrizd a bot logját."
+        
+        try:
+            await context.bot.send_message(chat_id=ADMIN_USER_ID, text=error_message, parse_mode='Markdown')
+        except Exception as e:
+            logger.error(f"Hiba az admin értesítésekor a fő hibakezelőben: {e}")
 
 # --- FŐ PROGRAM ---
 
@@ -367,25 +402,12 @@ def main():
     init_db() # Ez most már frissíti a sémát, ha szükséges
     
     application = Application.builder().token(TELEGRAM_BOT_TOKEN).build()
-
-    # Parancs Handlerek hozzáadása
-    application.add_handler(CommandHandler("start", start))
-    application.add_handler(CommandHandler("help", help_command))
-    application.add_handler(CommandHandler("signals", signals_command))
-    application.add_handler(CommandHandler("pro", pro_command))
-    application.add_handler(CommandHandler("generateanalysis", admin_generate_analysis)) # Admin parancs
-    application.add_handler(CommandHandler("setpro", admin_set_pro_status)) # Admin parancs
-
-    # Callback/Gomb Handlerek hozzáadása
-    application.add_handler(CallbackQueryHandler(button_handler))
-
+    
     # >>>>>>>>>>>>> JOBQUEUE (IDŐZÍTÉS) BEÁLLÍTÁSA <<<<<<<<<<<<<
     job_queue = application.job_queue
     
-    # Ellenőrizzük, hogy a JobQueue sikeresen be lett-e állítva
     if job_queue is None:
         logger.error("A JobQueue nincs telepítve. Kérjük, futtassa: pip install \"python-telegram-bot[job-queue]\"")
-        # Nem próbáljuk meghívni a run_daily-t, ha job_queue None
     else:
         # Beállítjuk a napi frissítést minden nap 09:00:00-kor
         job_queue.run_daily(
@@ -397,10 +419,23 @@ def main():
         logger.info("Napi elemzés frissítés időzítve 09:00:00-ra.")
     # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
+    # Parancs Handlerek hozzáadása
+    application.add_handler(CommandHandler("start", start))
+    application.add_handler(CommandHandler("help", help_command))
+    application.add_handler(CommandHandler("signals", signals_command))
+    application.add_handler(CommandHandler("pro", pro_command))
+    application.add_handler(CommandHandler("generateanalysis", admin_generate_analysis)) # Admin parancs
+    application.add_handler(CommandHandler("setpro", admin_set_pro_status)) # Admin parancs
+
+    # Callback/Gomb Handlerek hozzáadása
+    application.add_handler(CallbackQueryHandler(button_handler))
+    
+    # 🌟 ÚJ: Hibakezelő hozzáadása
+    application.add_error_handler(error_handler)
+
+
     print("A Bot sikeresen fut! (Nyomj Ctrl+C-t a leállításhoz)")
     application.run_polling()
 
 if __name__ == '__main__':
     main()
-
-
