@@ -11,6 +11,8 @@ from ai_analyzer import get_current_analysis, update_daily_analysis
 # --- KONFIGURÁCIÓ ---
 TELEGRAM_BOT_TOKEN = '8486431467:AAEMJ87kuhbwzYl529ypndfD7LsrQ52Ekx4'
 DB_NAME = 'skyai_users.db'
+# ÚJ: ADMIN ID BEÁLLÍTÁSA (VeresBarnabas1)
+ADMIN_USER_ID = 1979330363
 
 # --- STRATÉGIAILAG INTEGRÁLT FIZETÉSI LINKEK ---
 FIAT_PAYMENT_URL = 'https://revolut.me/veresbarnabas1?currency=HUF&amount=15000' # A 1500000-t feltételeztem 15000 Ft-nak (1500000 Ft irreálisan magas)
@@ -28,26 +30,84 @@ logger = logging.getLogger(__name__)
 def init_db():
     conn = sqlite3.connect(DB_NAME)
     cursor = conn.cursor()
-    # Módosítás: Hozzáadva a join_date és a pro_expiry_date
+    # Frissítés: user_id mint PK, subscription_status és pro_expiry_date
     cursor.execute('''
     CREATE TABLE IF NOT EXISTS users (
         user_id INTEGER PRIMARY KEY,
         username TEXT,
         join_date TEXT,
         subscription_status TEXT DEFAULT 'free',
-        pro_expiry_date TEXT -- ÚJ: Lejárati dátum tárolása (YYYY-MM-DD HH:MM:SS formátumban)
+        pro_expiry_date TEXT -- ÚJ: Lejárati dátum tárolása
     )
 ''')
     conn.commit()
     conn.close()
 
-def check_user_status(user_id):
+def set_user_status(user_id, new_status, expiry_months=1):
+    """Adminisztrátori funkció a felhasználó státuszának és lejárati idejének beállítására."""
     conn = sqlite3.connect(DB_NAME)
     cursor = conn.cursor()
-    cursor.execute('SELECT subscription_status FROM users WHERE user_id = ?', (user_id,))
+    
+    if new_status == 'pro':
+        current_date = datetime.datetime.now()
+        # Hónap hozzáadása (kb. 30 nap)
+        expiry_date = current_date + datetime.timedelta(days=expiry_months * 30) 
+        expiry_date_str = expiry_date.strftime('%Y-%m-%d %H:%M:%S')
+        
+        cursor.execute(
+            'UPDATE users SET subscription_status = ?, pro_expiry_date = ? WHERE user_id = ?',
+            (new_status, expiry_date_str, user_id)
+        )
+        msg = f"A felhasználó (ID: {user_id}) PRO státusza beállítva {expiry_date_str} dátumig."
+    else:
+        # Ha 'free'-re állítunk, a pro_expiry_date-et nullázzuk
+        cursor.execute(
+            'UPDATE users SET subscription_status = ?, pro_expiry_date = NULL WHERE user_id = ?',
+            (new_status, user_id)
+        )
+        msg = f"A felhasználó (ID: {user_id}) státusza 'free'-re állítva."
+
+    conn.commit()
+    conn.close()
+    return msg
+
+
+def check_user_status(user_id):
+    """Ellenőrzi a felhasználó státuszát, beleértve a PRO tagság lejárati dátumát is."""
+    conn = sqlite3.connect(DB_NAME)
+    cursor = conn.cursor()
+    # Lekérjük a subscription_status-t ÉS a pro_expiry_date-et
+    cursor.execute('SELECT subscription_status, pro_expiry_date FROM users WHERE user_id = ?', (user_id,))
     result = cursor.fetchone()
     conn.close()
-    return result[0] if result else 'free'
+
+    if not result:
+        return 'free'
+        
+    status, expiry_date_str = result
+
+    # 1. Ha a státusz nem 'pro', akkor marad 'free'
+    if status != 'pro':
+        return 'free'
+    
+    # 2. Ha 'pro', ellenőrizzük a lejárati dátumot
+    if expiry_date_str:
+        try:
+            expiry_date = datetime.datetime.strptime(expiry_date_str, '%Y-%m-%d %H:%M:%S')
+            
+            # Ha a lejárati dátum ELMÚLT, a státusz visszakerül 'free'-re
+            if expiry_date < datetime.datetime.now():
+                # Automatikus visszaminősítés
+                set_user_status(user_id, 'free') 
+                return 'free'
+            else:
+                return 'pro' # Még aktív
+        except ValueError:
+            logger.error(f"Hiba a lejárati dátum formátumával: {expiry_date_str}")
+            return 'free' # Hiba esetén biztonsági okokból free
+
+    # Ha 'pro' státusz van, de nincs lejárati dátum (hiba), akkor free
+    return 'free'
 
 # --- PARANCSKEZELŐK ---
 
@@ -57,8 +117,9 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     # Adatbázisba mentés és/vagy státusz lekérdezése
     conn = sqlite3.connect(DB_NAME)
     cursor = conn.cursor()
+    # Frissítés: user_id mint kulcs, join_date formázott stringként
     cursor.execute('INSERT OR IGNORE INTO users (user_id, username, join_date) VALUES (?, ?, ?)',
-                   (user.id, user.username, datetime.datetime.now()))
+                   (user.id, user.username, datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
     conn.commit()
     conn.close()
     
@@ -199,10 +260,54 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
             parse_mode='Markdown'
         )
 
-async def admin_generate_analysis(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Admin parancs a napi elemzés frissítésének szimulálására."""
+async def refresh_analysis_daily(context: ContextTypes.DEFAULT_TYPE) -> None:
+    """A JobQueue által hívott függvény a napi elemzés frissítésére."""
+    # A context.job.name tartalmazhatja a futtatás idejét vagy célt, ha szükséges
+    
+    # A szinkron update_daily_analysis() meghívása
     result_msg = update_daily_analysis()
-    await update.message.reply_text(f"Admin Művelet:\n{result_msg}", parse_mode='Markdown')
+    
+    # Ezen a ponton opcionálisan értesítheted az adminisztrátort
+    logger.info(f"Automatikus Elemzés Frissítés: {result_msg}")
+    
+    # Ha szeretnéd, hogy az admin kapjon értesítést a sikeres frissítésről:
+    # try:
+    #     await context.bot.send_message(chat_id=ADMIN_USER_ID, text=f"✅ Napi elemzés frissítve. {result_msg}")
+    # except Exception:
+    #     pass
+
+async def admin_set_pro_status(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Admin parancs a felhasználó PRO státuszának beállítására."""
+    user = update.effective_user
+
+    # Admin jogosultság ellenőrzése a beállított ID-vel
+    if user.id != ADMIN_USER_ID:
+        await update.message.reply_text("⛔️ Nincs jogosultságod ehhez a parancshoz.")
+        return
+
+    # Parancs formátum ellenőrzése: /setpro <user_id> [hónapok száma]
+    try:
+        if len(context.args) < 1:
+            raise IndexError("Hiányzó User ID.")
+            
+        target_user_id = int(context.args[0])
+        expiry_months = int(context.args[1]) if len(context.args) > 1 else 1 # Alapértelmezés: 1 hónap
+        
+        result_msg = set_user_status(target_user_id, 'pro', expiry_months)
+        await update.message.reply_text(f"✅ Sikeres beállítás:\n{result_msg}", parse_mode='Markdown')
+        
+        # Opcionálisan: Értesítés küldése a felhasználónak
+        try:
+             await context.bot.send_message(
+                chat_id=target_user_id, 
+                text="🥳 **Gratulálunk!** A SkyAI PRO előfizetésed aktiválva lett. Kereskedj valós idejű szignálokkal!\n\n/signals",
+                parse_mode='Markdown'
+            )
+        except Exception:
+            await update.message.reply_text(f"⚠️ Hiba a felhasználó értesítésekor (ID: {target_user_id}).")
+
+    except Exception:
+        await update.message.reply_text(f"❌ Hibás formátum. Használd így: `/setpro <user_id> [hónap]`\nPl.: `/setpro 987654321 1`", parse_mode='Markdown')
 
 
 async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -219,8 +324,8 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     elif query.data == 'start_menu':
         await start(update, context)
 
-
 # --- FŐ PROGRAM ---
+
 def main():
     print("A SkyAI Bot indul...")
     init_db()
@@ -233,14 +338,25 @@ def main():
     application.add_handler(CommandHandler("signals", signals_command))
     application.add_handler(CommandHandler("pro", pro_command))
     application.add_handler(CommandHandler("generateanalysis", admin_generate_analysis)) # Admin parancs
+    application.add_handler(CommandHandler("setpro", admin_set_pro_status)) # ÚJ Admin parancs
 
     # Callback/Gomb Handlerek hozzáadása
     application.add_handler(CallbackQueryHandler(button_handler))
+
+    # >>>>>>>>>>>>> ÚJ: JOBQUEUE (IDŐZÍTÉS) BEÁLLÍTÁSA <<<<<<<<<<<<<
+    job_queue = application.job_queue
+    
+    # Beállítjuk a napi frissítést minden nap 09:00:00-kor
+    job_queue.run_daily(
+        refresh_analysis_daily,  # A futtatandó függvény
+        time=datetime.time(hour=9, minute=0, second=0), # A kívánt időpont (UTC-ben kezeli, de a szerver időzónájához igazíthatod)
+        days=(0, 1, 2, 3, 4, 5, 6), # Hét minden napján
+        name='daily_analysis_update'
+    )
+    # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
     print("A Bot sikeresen fut! (Nyomj Ctrl+C-t a leállításhoz)")
     application.run_polling()
 
 if __name__ == '__main__':
     main()
-
-
