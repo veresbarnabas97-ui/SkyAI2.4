@@ -21,28 +21,3 @@ A SkyAI két szintű hozzáférést biztosít:
 
 A Telegram bot direkt **fizetési linkeket** tartalmaz (`/pro` parancs), így a FREE felhasználók azonnal fizető ügyfelekké konvertálhatók a FOMO (Fear of Missing Out) és a megbízható elemzések ígéretének köszönhetően.
 
----
-
-## 🛠️ Telepítés és Beállítás
-
-A projekt futtatásához Python 3.10 vagy újabb verzió szükséges.
-
-### 1. Előfeltételek
-
-* **Python:** A szükséges függőségek telepítése:
-    ```bash
-    pip install python-telegram-bot sqlite3
-    ```
-* **Telegram Bot Token:** Szerezz be egy tokent a @BotFather-től.
-
-### 2. Konfiguráció
-
-Készítsd el a `bot.py` fájlban a konfigurációt. **FONTOS:** Cseréld ki a placeholder értékeket a saját adataidra.
-
-```python
-# bot.py (Konfiguráció részlet)
-TELEGRAM_BOT_TOKEN = 'YOUR_BOT_TOKEN_HERE' 
-
-# Stratégiailag integrált fizetési linkek
-FIAT_PAYMENT_URL = '[https://revolut.me/veresbarnabas1?currency=HUF&amount=15000](https://revolut.me/veresbarnabas1?currency=HUF&amount=15000)' 
-CRYPTO_PAYMENT_URL = '[https://s.binance.com/LfcBZowU](https://s.binance.com/LfcBZowU)'
