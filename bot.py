@@ -6,16 +6,20 @@ from telegram.ext import (
     Application, CommandHandler, CallbackQueryHandler, ContextTypes
 )
 # Feltételezzük, hogy az ai_analyzer.py már a módosított formában van
+# MEGJEGYZÉS: Ehhez a fájlhoz szükség van egy 'ai_analyzer.py' fájlra,
+# amely implementálja a get_current_analysis és update_daily_analysis funkciókat.
 from ai_analyzer import get_current_analysis, update_daily_analysis 
 
 # --- KONFIGURÁCIÓ ---
+# FIGYELEM: A token nyilvános kódban való tárolása biztonsági kockázatot jelent!
+# A GitHub figyelmeztetése is erre vonatkozott!
 TELEGRAM_BOT_TOKEN = '8486431467:AAEMJ87kuhbwzYl529ypndfD7LsrQ52Ekx4'
 DB_NAME = 'skyai_users.db'
 # ÚJ: ADMIN ID BEÁLLÍTÁSA (VeresBarnabas1)
-ADMIN_USER_ID = 1979330363
+ADMIN_USER_ID = 1979330363 # Kérlek, ellenőrizd, hogy ez a helyes Telegram User ID-d!
 
 # --- STRATÉGIAILAG INTEGRÁLT FIZETÉSI LINKEK ---
-FIAT_PAYMENT_URL = 'https://revolut.me/veresbarnabas1?currency=HUF&amount=15000' # A 1500000-t feltételeztem 15000 Ft-nak (1500000 Ft irreálisan magas)
+FIAT_PAYMENT_URL = 'https://revolut.me/veresbarnabas1?currency=HUF&amount=15000' 
 CRYPTO_PAYMENT_URL = 'https://s.binance.com/LfcBZowU' 
 
 # Logging beállítása
@@ -166,7 +170,7 @@ async def send_analysis(update: Update, context: ContextTypes.DEFAULT_TYPE, is_c
         for pair, info in data.items():
             icon = "🟢" if info['trend'] == 'BULLISH' else "🔴" if info['trend'] == 'BEARISH' else "⚪"
             msg += f"{icon} **{pair}**: {info['trend']} ({info['probability']})\n"
-            msg += f"   └ {info['level']}\n\n"
+            msg += f"   └ {info['level']}\n\n"
         
         keyboard = [[InlineKeyboardButton("🔙 Vissza a Főmenübe", callback_data='start_menu')]]
         reply_markup = InlineKeyboardMarkup(keyboard)
@@ -179,7 +183,7 @@ async def send_analysis(update: Update, context: ContextTypes.DEFAULT_TYPE, is_c
         btc_info = data.get('BTC/USDC', {'trend': 'Nincs adat', 'probability': '0%', 'level': 'Frissítés szükséges'})
         icon = "🟢" if btc_info['trend'] == 'BULLISH' else "🔴" if btc_info['trend'] == 'BEARISH' else "⚪"
         msg += f"{icon} **BTC/USDC**: {btc_info['trend']} ({btc_info['probability']})\n"
-        msg += f"   └ {btc_info['level']}\n\n"
+        msg += f"   └ {btc_info['level']}\n\n"
         msg += "**Több kereskedési lehetőségért és részletesebb belépőkért frissíts PRO-ra!**\n\n"
         
         keyboard = [[InlineKeyboardButton("💎 PRO-ra Frissítés", callback_data='subscribe')]]
@@ -252,7 +256,7 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if hasattr(update, 'message') and update.message:
         await update.message.reply_text(msg, reply_markup=reply_markup, parse_mode='Markdown')
     elif hasattr(update, 'callback_query') and update.callback_query:
-         await context.bot.edit_message_text(
+           await context.bot.edit_message_text(
             chat_id=update.callback_query.message.chat_id,
             message_id=update.callback_query.message.message_id,
             text=msg,
@@ -262,19 +266,35 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def refresh_analysis_daily(context: ContextTypes.DEFAULT_TYPE) -> None:
     """A JobQueue által hívott függvény a napi elemzés frissítésére."""
-    # A context.job.name tartalmazhatja a futtatás idejét vagy célt, ha szükséges
+    # A szinkron update_daily_analysis() meghívása
+    result_msg = update_daily_analysis()
+    
+    logger.info(f"Automatikus Elemzés Frissítés: {result_msg}")
+    
+    # Értesítés küldése az adminisztrátornak
+    try:
+         await context.bot.send_message(chat_id=ADMIN_USER_ID, text=f"✅ Napi elemzés frissítve. {result_msg}")
+    except Exception as e:
+         logger.error(f"Hiba az admin értesítésekor: {e}")
+
+# EZ A HIÁNYZÓ FÜGGVÉNY: Manuális elemzés generálása admin parancsra
+async def admin_generate_analysis(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """
+    Kézi indítás adminisztrátor számára a napi elemzés frissítésére.
+    """
+    user = update.effective_user
+
+    if user.id != ADMIN_USER_ID:
+        await update.message.reply_text("⛔️ Nincs jogosultságod ehhez a parancshoz.")
+        return
+
+    await update.message.reply_text("⚙️ Elemzés generálása elindult...")
     
     # A szinkron update_daily_analysis() meghívása
     result_msg = update_daily_analysis()
     
-    # Ezen a ponton opcionálisan értesítheted az adminisztrátort
-    logger.info(f"Automatikus Elemzés Frissítés: {result_msg}")
-    
-    # Ha szeretnéd, hogy az admin kapjon értesítést a sikeres frissítésről:
-    # try:
-    #     await context.bot.send_message(chat_id=ADMIN_USER_ID, text=f"✅ Napi elemzés frissítve. {result_msg}")
-    # except Exception:
-    #     pass
+    await update.message.reply_text(f"✅ Manuális elemzés frissítés befejezve:\n\n`{result_msg}`", parse_mode='Markdown')
+    logger.info(f"Manuális Elemzés Frissítés: {result_msg}")
 
 async def admin_set_pro_status(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Admin parancs a felhasználó PRO státuszának beállítására."""
@@ -299,12 +319,12 @@ async def admin_set_pro_status(update: Update, context: ContextTypes.DEFAULT_TYP
         # Opcionálisan: Értesítés küldése a felhasználónak
         try:
              await context.bot.send_message(
-                chat_id=target_user_id, 
-                text="🥳 **Gratulálunk!** A SkyAI PRO előfizetésed aktiválva lett. Kereskedj valós idejű szignálokkal!\n\n/signals",
-                parse_mode='Markdown'
-            )
+                 chat_id=target_user_id, 
+                 text="🥳 **Gratulálunk!** A SkyAI PRO előfizetésed aktiválva lett. Kereskedj valós idejű szignálokkal!\n\n/signals",
+                 parse_mode='Markdown'
+             )
         except Exception:
-            await update.message.reply_text(f"⚠️ Hiba a felhasználó értesítésekor (ID: {target_user_id}).")
+             await update.message.reply_text(f"⚠️ Hiba a felhasználó értesítésekor (ID: {target_user_id}).")
 
     except Exception:
         await update.message.reply_text(f"❌ Hibás formátum. Használd így: `/setpro <user_id> [hónap]`\nPl.: `/setpro 987654321 1`", parse_mode='Markdown')
@@ -337,8 +357,8 @@ def main():
     application.add_handler(CommandHandler("help", help_command))
     application.add_handler(CommandHandler("signals", signals_command))
     application.add_handler(CommandHandler("pro", pro_command))
-    application.add_handler(CommandHandler("generateanalysis", admin_generate_analysis)) # Admin parancs
-    application.add_handler(CommandHandler("setpro", admin_set_pro_status)) # ÚJ Admin parancs
+    application.add_handler(CommandHandler("generateanalysis", admin_generate_analysis)) # Admin parancs (HIBA JAVÍTVA)
+    application.add_handler(CommandHandler("setpro", admin_set_pro_status)) # Admin parancs
 
     # Callback/Gomb Handlerek hozzáadása
     application.add_handler(CallbackQueryHandler(button_handler))
@@ -348,7 +368,7 @@ def main():
     
     # Beállítjuk a napi frissítést minden nap 09:00:00-kor
     job_queue.run_daily(
-        refresh_analysis_daily,  # A futtatandó függvény
+        refresh_analysis_daily,  # A futtatandó függvény
         time=datetime.time(hour=9, minute=0, second=0), # A kívánt időpont (UTC-ben kezeli, de a szerver időzónájához igazíthatod)
         days=(0, 1, 2, 3, 4, 5, 6), # Hét minden napján
         name='daily_analysis_update'
