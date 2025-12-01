@@ -165,10 +165,17 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     else:
         await update.message.reply_text(welcome_msg, reply_markup=reply_markup, parse_mode='Markdown')
 
-async def send_analysis(update: Update, context: ContextTypes.DEFAULT_TYPE, is_command=False):
-    """Közös funkció a /signals parancshoz és az 'analysis' callback-hez."""
-    user_id = update.effective_user.id
-    status = check_user_status(user_id)
+async def send_analysis(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    # ... btc_info betöltése (API hívásból vagy más forrásból)
+    
+    # 🌟 JAVÍTÁS: Ellenőrizzük, hogy az 'probability' kulcs létezik-e, ÉS hogy btc_info szótár-e.
+    if isinstance(btc_info, dict) and 'probability' in btc_info:
+        probability = btc_info['probability']
+    else:
+        # Ha hiányzik a kulcs, alapértelmezett értékkel térünk vissza
+        probability = 'N/A'
+        # Érdemes naplózni, hogy mikor történt ez az eset
+        print("FIGYELEM: Hiányzó 'probability' kulcs a btc_info szótárban.")
     
     # Adatok lekérése a felhasználói státusz alapján (ami az ai_analyzer.py-ban kezeli a FREE/PRO logikát)
     data = get_current_analysis(status)
@@ -191,7 +198,7 @@ async def send_analysis(update: Update, context: ContextTypes.DEFAULT_TYPE, is_c
         btc_info = data.get('BTC/USDC', {'trend': 'Nincs adat', 'probability': '0%', 'level': 'Frissítés szükséges'})
         icon = "🟢" if btc_info['trend'] == 'BULLISH' else "🔴" if btc_info['trend'] == 'BEARISH' else "⚪"
         probability = btc_info.get('probability', 'N/A')
-msg += f"{icon} **BTC/USDC**: {btc_info['trend']} ({probability})\n"
+        msg += f"{icon} **BTC/USDC**: {btc_info['trend']} ({probability})\n"
         msg += f"   └ {btc_info['level']}\n\n"
         msg += "**Több kereskedési lehetőségért és részletesebb belépőkért frissíts PRO-ra!**\n\n"
         
@@ -395,4 +402,5 @@ def main():
 
 if __name__ == '__main__':
     main()
+
 
