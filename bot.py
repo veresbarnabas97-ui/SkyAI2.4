@@ -6,17 +6,14 @@ from telegram.ext import (
     Application, CommandHandler, CallbackQueryHandler, ContextTypes
 )
 # Feltételezzük, hogy az ai_analyzer.py már a módosított formában van
-# MEGJEGYZÉS: Ehhez a fájlhoz szükség van egy 'ai_analyzer.py' fájlra,
-# amely implementálja a get_current_analysis és update_daily_analysis funkciókat.
 from ai_analyzer import get_current_analysis, update_daily_analysis 
 
 # --- KONFIGURÁCIÓ ---
 # FIGYELEM: A token nyilvános kódban való tárolása biztonsági kockázatot jelent!
-# A GitHub figyelmeztetése is erre vonatkozott!
 TELEGRAM_BOT_TOKEN = '8486431467:AAEMJ87kuhbwzYl529ypndfD7LsrQ52Ekx4'
 DB_NAME = 'skyai_users.db'
 # ÚJ: ADMIN ID BEÁLLÍTÁSA (VeresBarnabas1)
-ADMIN_USER_ID = 1979330363 # Kérlek, ellenőrizd, hogy ez a helyes Telegram User ID-d!
+ADMIN_USER_ID = 1979330363 
 
 # --- STRATÉGIAILAG INTEGRÁLT FIZETÉSI LINKEK ---
 FIAT_PAYMENT_URL = 'https://revolut.me/veresbarnabas1?currency=HUF&amount=15000' 
@@ -277,7 +274,7 @@ async def refresh_analysis_daily(context: ContextTypes.DEFAULT_TYPE) -> None:
     except Exception as e:
          logger.error(f"Hiba az admin értesítésekor: {e}")
 
-# EZ A HIÁNYZÓ FÜGGVÉNY: Manuális elemzés generálása admin parancsra
+# Kézi indítás adminisztrátor számára a napi elemzés frissítésére. (NameError javítása)
 async def admin_generate_analysis(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """
     Kézi indítás adminisztrátor számára a napi elemzés frissítésére.
@@ -357,7 +354,7 @@ def main():
     application.add_handler(CommandHandler("help", help_command))
     application.add_handler(CommandHandler("signals", signals_command))
     application.add_handler(CommandHandler("pro", pro_command))
-    application.add_handler(CommandHandler("generateanalysis", admin_generate_analysis)) # Admin parancs (HIBA JAVÍTVA)
+    application.add_handler(CommandHandler("generateanalysis", admin_generate_analysis)) # Admin parancs
     application.add_handler(CommandHandler("setpro", admin_set_pro_status)) # Admin parancs
 
     # Callback/Gomb Handlerek hozzáadása
@@ -368,9 +365,9 @@ def main():
     
     # Beállítjuk a napi frissítést minden nap 09:00:00-kor
     job_queue.run_daily(
-        refresh_analysis_daily,  # A futtatandó függvény
-        time=datetime.time(hour=9, minute=0, second=0), # A kívánt időpont (UTC-ben kezeli, de a szerver időzónájához igazíthatod)
-        days=(0, 1, 2, 3, 4, 5, 6), # Hét minden napján
+        refresh_analysis_daily, 
+        time=datetime.time(hour=9, minute=0, second=0), 
+        days=(0, 1, 2, 3, 4, 5, 6), 
         name='daily_analysis_update'
     )
     # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
