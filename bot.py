@@ -29,13 +29,12 @@ def init_db():
     conn = sqlite3.connect(DB_NAME)
     cursor = conn.cursor()
     cursor.execute('''
-        CREATE TABLE IF NOT EXISTS users (
-            user_id INTEGER PRIMARY KEY,
-            username TEXT,
-            subscription_status TEXT DEFAULT 'free',  # Alapértelmezett: 'free'
-            join_date TEXT
-        )
-    ''')
+    CREATE TABLE IF NOT EXISTS users (
+        id INTEGER PRIMARY KEY,
+        username TEXT NOT NULL,
+        level INTEGER 
+    )
+''')
     conn.commit()
     conn.close()
 
@@ -240,3 +239,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+
