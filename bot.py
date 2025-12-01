@@ -190,7 +190,8 @@ async def send_analysis(update: Update, context: ContextTypes.DEFAULT_TYPE, is_c
         # Csak BTC adat mutatása 
         btc_info = data.get('BTC/USDC', {'trend': 'Nincs adat', 'probability': '0%', 'level': 'Frissítés szükséges'})
         icon = "🟢" if btc_info['trend'] == 'BULLISH' else "🔴" if btc_info['trend'] == 'BEARISH' else "⚪"
-        msg += f"{icon} **BTC/USDC**: {btc_info['trend']} ({btc_info['probability']})\n"
+        probability = btc_info.get('probability', 'N/A')
+msg += f"{icon} **BTC/USDC**: {btc_info['trend']} ({probability})\n"
         msg += f"   └ {btc_info['level']}\n\n"
         msg += "**Több kereskedési lehetőségért és részletesebb belépőkért frissíts PRO-ra!**\n\n"
         
@@ -394,3 +395,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+
