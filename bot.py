@@ -31,16 +31,27 @@ logger = logging.getLogger(__name__)
 def init_db():
     conn = sqlite3.connect(DB_NAME)
     cursor = conn.cursor()
-    # Frissítés: user_id mint PK, subscription_status és pro_expiry_date
+    
+    # 1. Lépés: Hozzuk létre a táblát, ha még nem létezik (az alap sémával)
     cursor.execute('''
     CREATE TABLE IF NOT EXISTS users (
         user_id INTEGER PRIMARY KEY,
         username TEXT,
         join_date TEXT,
         subscription_status TEXT DEFAULT 'free',
-        pro_expiry_date TEXT -- ÚJ: Lejárati dátum tárolása
+        pro_expiry_date TEXT -- Ezzel a definícióval dolgozunk
     )
 ''')
+
+    # 2. Lépés: Ellenőrizzük, hogy létezik-e a 'pro_expiry_date' oszlop.
+    # Ez megoldja a "no such column" hibát, ha a felhasználó korábbi adatbázis fájlt használ.
+    try:
+        cursor.execute("SELECT pro_expiry_date FROM users LIMIT 1")
+    except sqlite3.OperationalError:
+        logger.warning("Hiányzó 'pro_expiry_date' oszlop észlelve. Frissítem a sémát.")
+        # Ha a lekérdezés hibát dob, hozzáadjuk az oszlopot
+        cursor.execute("ALTER TABLE users ADD COLUMN pro_expiry_date TEXT")
+
     conn.commit()
     conn.close()
 
@@ -345,7 +356,7 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 def main():
     print("A SkyAI Bot indul...")
-    init_db()
+    init_db() # Ez most már frissíti a sémát, ha szükséges
     
     application = Application.builder().token(TELEGRAM_BOT_TOKEN).build()
 
@@ -360,16 +371,22 @@ def main():
     # Callback/Gomb Handlerek hozzáadása
     application.add_handler(CallbackQueryHandler(button_handler))
 
-    # >>>>>>>>>>>>> ÚJ: JOBQUEUE (IDŐZÍTÉS) BEÁLLÍTÁSA <<<<<<<<<<<<<
+    # >>>>>>>>>>>>> JOBQUEUE (IDŐZÍTÉS) BEÁLLÍTÁSA <<<<<<<<<<<<<
     job_queue = application.job_queue
     
-    # Beállítjuk a napi frissítést minden nap 09:00:00-kor
-    job_queue.run_daily(
-        refresh_analysis_daily, 
-        time=datetime.time(hour=9, minute=0, second=0), 
-        days=(0, 1, 2, 3, 4, 5, 6), 
-        name='daily_analysis_update'
-    )
+    # Ellenőrizzük, hogy a JobQueue sikeresen be lett-e állítva
+    if job_queue is None:
+        logger.error("A JobQueue nincs telepítve. Kérjük, futtassa: pip install \"python-telegram-bot[job-queue]\"")
+        # Nem próbáljuk meghívni a run_daily-t, ha job_queue None
+    else:
+        # Beállítjuk a napi frissítést minden nap 09:00:00-kor
+        job_queue.run_daily(
+            refresh_analysis_daily, 
+            time=datetime.time(hour=9, minute=0, second=0), 
+            days=(0, 1, 2, 3, 4, 5, 6), 
+            name='daily_analysis_update'
+        )
+        logger.info("Napi elemzés frissítés időzítve 09:00:00-ra.")
     # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
     print("A Bot sikeresen fut! (Nyomj Ctrl+C-t a leállításhoz)")
