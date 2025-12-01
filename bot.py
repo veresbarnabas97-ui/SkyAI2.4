@@ -28,11 +28,14 @@ logger = logging.getLogger(__name__)
 def init_db():
     conn = sqlite3.connect(DB_NAME)
     cursor = conn.cursor()
+    # Módosítás: Hozzáadva a join_date és a pro_expiry_date
     cursor.execute('''
     CREATE TABLE IF NOT EXISTS users (
-        id INTEGER PRIMARY KEY,
-        username TEXT NOT NULL,
-        level INTEGER 
+        user_id INTEGER PRIMARY KEY,
+        username TEXT,
+        join_date TEXT,
+        subscription_status TEXT DEFAULT 'free',
+        pro_expiry_date TEXT -- ÚJ: Lejárati dátum tárolása (YYYY-MM-DD HH:MM:SS formátumban)
     )
 ''')
     conn.commit()
@@ -239,4 +242,5 @@ def main():
 
 if __name__ == '__main__':
     main()
+
 
