@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+  <meta charset="UTF-8">
+  <title>SkyAI SNIPER DASHBOARD | Private Access</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    :root { --bg: #050507; --cyan: #00f0ff; --text: #fff; }
+    body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; margin: 0; padding: 20px; }
+    .header { border-bottom: 2px solid var(--cyan); padding-bottom: 20px; margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center; }
+    .status { color: var(--cyan); font-weight: bold; text-transform: uppercase; letter-spacing: 2px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 20px; }
+    .card { background: #111; border: 1px solid #333; padding: 15px; border-radius: 8px; }
+    .card h3 { color: var(--cyan); margin-top: 0; }
+    .alert-box { background: rgba(0, 240, 255, 0.1); border: 1px solid var(--cyan); padding: 15px; margin-bottom: 20px; border-radius: 5px; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>SkyAI <span style="color:var(--cyan)">SNIPER</span> // SPOT TERMINAL</h1>
+    <div class="status">● SYSTEM ONLINE</div>
+  </div>
+
+  <div class="alert-box">
+    <strong>🎯 AKTÍV SNIPER ÜZENET:</strong> Figyeld a BTC 15 perces kitörését! A Telegram bot küldi a pontos belépőt.
+  </div>
+
+  <div class="grid">
+    <div class="card">
+      <h3>BTC/USDT (15m)</h3>
+      <div class="tradingview-widget-container" id="tv-btc"></div>
+    </div>
+    <div class="card">
+      <h3>SOL/USDT (15m)</h3>
+      <div class="tradingview-widget-container" id="tv-sol"></div>
+    </div>
+    <div class="card">
+      <h3>BNB/USDT (15m)</h3>
+      <div class="tradingview-widget-container" id="tv-bnb"></div>
+    </div>
+  </div>
+
+  <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+  <script>
+    const config = { "interval": "15", "theme": "dark", "style": "1", "locale": "hu_HU", "enable_publishing": false, "hide_top_toolbar": true, "autosize": true };
+    new TradingView.widget(Object.assign({ "symbol": "BINANCE:BTCUSDT", "container_id": "tv-btc" }, config));
+    new TradingView.widget(Object.assign({ "symbol": "BINANCE:SOLUSDT", "container_id": "tv-sol" }, config));
+    new TradingView.widget(Object.assign({ "symbol": "BINANCE:BNBUSDT", "container_id": "tv-bnb" }, config));
+  </script>
+</body>
+</html>
