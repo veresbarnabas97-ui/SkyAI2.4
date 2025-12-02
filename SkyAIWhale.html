@@ -2,47 +2,218 @@
 <html lang="hu">
 <head>
   <meta charset="UTF-8">
-  <title>SkyAI WHALE | VIP Command Center</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SkyAI Whale | VIP Command Center</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Inter:wght@300;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
-    :root { --bg: #050507; --purple: #bc13fe; --text: #fff; }
-    body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; margin: 0; padding: 20px; }
-    .header { border-bottom: 2px solid var(--purple); padding-bottom: 20px; margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center; }
-    .status { color: var(--purple); font-weight: bold; text-transform: uppercase; letter-spacing: 2px; }
-    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 30px; }
-    .card { background: #121216; border: 1px solid #333; padding: 20px; border-radius: 8px; border-top: 3px solid var(--purple); }
-    .pooolse-badge { background: linear-gradient(45deg, #bc13fe, #00f0ff); padding: 5px 10px; border-radius: 4px; color: #fff; font-size: 0.8rem; font-weight: bold; }
+    :root {
+      --bg: #050507;
+      --panel: rgba(20, 20, 25, 0.6);
+      --purple: #bc13fe;
+      --purple-glow: rgba(188, 19, 254, 0.4);
+      --text: #ffffff;
+      --border: 1px solid rgba(188, 19, 254, 0.2);
+    }
+
+    body {
+      background-color: var(--bg);
+      background-image: linear-gradient(to bottom, #050507 0%, #0a050d 100%);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* --- PREMIUM HEADER --- */
+    .vip-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 40px;
+      border-bottom: 1px solid var(--purple-glow);
+      background: rgba(10, 5, 15, 0.9);
+    }
+
+    .brand {
+      font-family: 'Cinzel', serif; /* Elegant font for Whales */
+      font-size: 1.8rem;
+      letter-spacing: 2px;
+      color: var(--purple);
+      text-shadow: 0 0 15px var(--purple-glow);
+    }
+    
+    .vip-badge {
+      background: linear-gradient(45deg, #bc13fe, #7a00cc);
+      padding: 5px 15px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: bold;
+      letter-spacing: 1px;
+      box-shadow: 0 0 20px var(--purple-glow);
+    }
+
+    /* --- DASHBOARD GRID --- */
+    .dashboard {
+      padding: 40px;
+      display: grid;
+      grid-template-columns: 300px 1fr;
+      gap: 30px;
+      flex: 1;
+    }
+
+    /* --- ASSET PANEL --- */
+    .asset-panel {
+      background: var(--panel);
+      border: var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      backdrop-filter: blur(10px);
+    }
+
+    .asset-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px;
+      margin-bottom: 15px;
+      background: rgba(255,255,255,0.03);
+      border-radius: 8px;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: 0.3s;
+    }
+    .asset-item:hover, .asset-item.active {
+      border-color: var(--purple);
+      background: rgba(188, 19, 254, 0.05);
+    }
+    .coin-icon { width: 32px; height: 32px; border-radius: 50%; background: #333; display: flex; align-items: center; justify-content: center; margin-right: 10px; }
+    
+    /* --- CHART PANEL --- */
+    .chart-panel {
+      background: var(--panel);
+      border: var(--border);
+      border-radius: 12px;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    .chart-controls {
+      padding: 15px;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      display: flex;
+      gap: 20px;
+      font-size: 0.9rem;
+      color: #aaa;
+    }
+    .control-item i { color: var(--purple); margin-right: 5px; }
+
+    .connect-btn {
+      width: 100%;
+      padding: 15px;
+      margin-top: 20px;
+      background: transparent;
+      border: 1px solid var(--purple);
+      color: var(--purple);
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    .connect-btn:hover { background: var(--purple); color: #fff; box-shadow: 0 0 30px var(--purple-glow); }
+
+    @media (max-width: 900px) { .dashboard { grid-template-columns: 1fr; } }
   </style>
 </head>
 <body>
-  <div class="header">
-    <h1>SkyAI <span style="color:var(--purple)">WHALE</span> // VIP COMMAND</h1>
-    <div class="status">● STRATEGIC MODE</div>
-  </div>
 
-  <div style="margin-bottom: 30px; display: flex; gap: 20px;">
-    <div class="card" style="flex: 1;">
-      <h3>🐋 Makro Piaci Áttekintés</h3>
-      <p>A Bálna algoritmus jelenleg akkumulációs fázist jelez a főbb párokon. A Pooolse integráció státusza: <span class="pooolse-badge">AKTÍV</span></p>
+  <header class="vip-header">
+    <div class="brand">SkyAI WHALE</div>
+    <div style="display:flex; align-items:center; gap:20px;">
+      <div class="vip-badge">VIP ACCESS</div>
     </div>
-  </div>
+  </header>
 
-  <div class="grid">
-    <div class="card">
-      <h3>BTC/USDT (4H - Trend)</h3>
-      <div class="tradingview-widget-container" id="tv-btc-macro"></div>
+  <div class="dashboard">
+    <div class="asset-panel">
+      <h3 style="margin-top:0; color:#ddd; font-weight:300;">Portfólió Monitor</h3>
+      
+      <div class="asset-item active" onclick="loadChart('BINANCE:BTCUSDC', this)">
+        <div style="display:flex; align-items:center;">
+          <div class="coin-icon"><i class="fab fa-bitcoin" style="color:#f7931a"></i></div>
+          <div>
+            <div style="font-weight:bold;">BTC/USDC</div>
+            <div style="font-size:0.8rem; color:#888;">Strategic View</div>
+          </div>
+        </div>
+        <div style="color:var(--purple)">4H</div>
+      </div>
+
+      <div class="asset-item" onclick="loadChart('BINANCE:ETHUSDC', this)">
+        <div style="display:flex; align-items:center;">
+          <div class="coin-icon"><i class="fab fa-ethereum" style="color:#627eea"></i></div>
+          <div>
+            <div style="font-weight:bold;">ETH/USDC</div>
+            <div style="font-size:0.8rem; color:#888;">Accumulation</div>
+          </div>
+        </div>
+        <div style="color:var(--purple)">4H</div>
+      </div>
+
+      <div class="asset-item" onclick="loadChart('BINANCE:SOLUSDC', this)">
+        <div style="display:flex; align-items:center;">
+          <div class="coin-icon" style="color:#00ffa3; font-weight:bold;">S</div>
+          <div>
+            <div style="font-weight:bold;">SOL/USDC</div>
+            <div style="font-size:0.8rem; color:#888;">Momentum</div>
+          </div>
+        </div>
+        <div style="color:var(--purple)">1D</div>
+      </div>
+
+      <button class="connect-btn" onclick="this.innerText='Wallet: 0x82...1B'">
+        <i class="fas fa-wallet"></i> Connect Web3
+      </button>
     </div>
-    <div class="card">
-      <h3>ETH/USDT (4H - Trend)</h3>
-      <div class="tradingview-widget-container" id="tv-eth-macro"></div>
+
+    <div class="chart-panel">
+      <div class="chart-controls">
+        <div class="control-item"><i class="fas fa-robot"></i> AI Status: <strong>ACTIVE</strong></div>
+        <div class="control-item"><i class="fas fa-layer-group"></i> Strategy: <strong>MACRO TREND</strong></div>
+      </div>
+      <div id="tv_chart_container" style="flex: 1; width: 100%;"></div>
     </div>
   </div>
 
   <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
   <script>
-    const config = { "interval": "240", "theme": "dark", "style": "1", "locale": "hu_HU", "enable_publishing": false, "hide_top_toolbar": false, "autosize": true };
-    new TradingView.widget(Object.assign({ "symbol": "BINANCE:BTCUSDT", "container_id": "tv-btc-macro" }, config));
-    new TradingView.widget(Object.assign({ "symbol": "BINANCE:ETHUSDT", "container_id": "tv-eth-macro" }, config));
+    function loadChart(symbol, element) {
+      document.querySelectorAll('.asset-item').forEach(btn => btn.classList.remove('active'));
+      element.classList.add('active');
+
+      new TradingView.widget({
+        "autosize": true,
+        "symbol": symbol,
+        "interval": "240", // 4 Hours default for Whales
+        "timezone": "Europe/Budapest",
+        "theme": "dark",
+        "style": "1",
+        "locale": "hu_HU",
+        "toolbar_bg": "#f1f3f6",
+        "enable_publishing": false,
+        "hide_top_toolbar": false,
+        "withdateranges": true,
+        "container_id": "tv_chart_container",
+        "backgroundColor": "rgba(20, 20, 25, 1)"
+      });
+    }
+
+    window.onload = function() {
+      loadChart('BINANCE:BTCUSDC', document.querySelector('.asset-item'));
+    };
   </script>
 </body>
 </html>
