@@ -1,17 +1,23 @@
 {
-  "last_analysis_date": "2025-11-30",
+  "last_analysis_date": "RENDSZER INDÍTÁS...",
   "analyses": {
     "BTC/USDC": {
-      "trend": "Kezdeti adatok betöltése. (VÁRAKOZÁS)",
-      "level": "Kérlek, futtasd a /generateanalysis parancsot!"
+      "trend": "INITIALIZING...",
+      "level": "A SkyAI Spot Algoritmus épp tölti a piaci adatokat. Kérjük, térj vissza a következő frissítési ciklusban.",
+      "prob": 0,
+      "current_price": "Betöltés..."
     },
     "BNB/USDC": {
-      "trend": "Kezdeti adatok betöltése. (VÁRAKOZÁS)",
-      "level": "Kérlek, futtasd a /generateanalysis parancsot!"
+      "trend": "INITIALIZING...",
+      "level": "A SkyAI Spot Algoritmus épp tölti a piaci adatokat. Kérjük, térj vissza a következő frissítési ciklusban.",
+      "prob": 0,
+      "current_price": "Betöltés..."
     },
     "SOL/USDC": {
-      "trend": "Kezdeti adatok betöltése. (VÁRAKOZÁS)",
-      "level": "Kérlek, futtasd a /generateanalysis parancsot!"
+      "trend": "INITIALIZING...",
+      "level": "A SkyAI Spot Algoritmus épp tölti a piaci adatokat. Kérjük, térj vissza a következő frissítési ciklusban.",
+      "prob": 0,
+      "current_price": "Betöltés..."
     }
   }
 }
