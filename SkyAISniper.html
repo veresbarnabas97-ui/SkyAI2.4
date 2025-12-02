@@ -2,50 +2,237 @@
 <html lang="hu">
 <head>
   <meta charset="UTF-8">
-  <title>SkyAI SNIPER DASHBOARD | Private Access</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SkyAI Sniper | Web3 Terminal</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;500;700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
-    :root { --bg: #050507; --cyan: #00f0ff; --text: #fff; }
-    body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; margin: 0; padding: 20px; }
-    .header { border-bottom: 2px solid var(--cyan); padding-bottom: 20px; margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center; }
-    .status { color: var(--cyan); font-weight: bold; text-transform: uppercase; letter-spacing: 2px; }
-    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 20px; }
-    .card { background: #111; border: 1px solid #333; padding: 15px; border-radius: 8px; }
-    .card h3 { color: var(--cyan); margin-top: 0; }
-    .alert-box { background: rgba(0, 240, 255, 0.1); border: 1px solid var(--cyan); padding: 15px; margin-bottom: 20px; border-radius: 5px; }
+    :root {
+      --bg: #050507;
+      --panel: rgba(14, 14, 18, 0.7);
+      --cyan: #00f0ff;
+      --cyan-dim: rgba(0, 240, 255, 0.1);
+      --text: #ffffff;
+      --muted: #9ca3af;
+      --border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    body {
+      background-color: var(--bg);
+      background-image: 
+        radial-gradient(circle at 15% 50%, rgba(0, 240, 255, 0.08) 0%, transparent 25%),
+        linear-gradient(rgba(0, 240, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 240, 255, 0.03) 1px, transparent 1px);
+      background-size: 100% 100%, 40px 40px, 40px 40px;
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      margin: 0;
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* --- TOP BAR --- */
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 30px;
+      border-bottom: 1px solid rgba(0, 240, 255, 0.2);
+      backdrop-filter: blur(10px);
+      background: rgba(5, 5, 7, 0.8);
+    }
+
+    .brand {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.5rem;
+      font-weight: 700;
+      letter-spacing: -1px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .brand span { color: var(--cyan); text-shadow: 0 0 15px var(--cyan); }
+    .status-dot { width: 8px; height: 8px; background: var(--cyan); border-radius: 50%; box-shadow: 0 0 10px var(--cyan); animation: pulse 2s infinite; }
+
+    .wallet-btn {
+      background: var(--cyan-dim);
+      border: 1px solid var(--cyan);
+      color: var(--cyan);
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-weight: 600;
+      font-family: 'Space Grotesk', sans-serif;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .wallet-btn:hover { background: var(--cyan); color: #000; box-shadow: 0 0 20px var(--cyan-dim); }
+
+    /* --- MAIN LAYOUT --- */
+    .main-container {
+      flex: 1;
+      display: flex;
+      padding: 20px;
+      gap: 20px;
+    }
+
+    /* --- SIDEBAR SELECTOR --- */
+    .pair-selector {
+      width: 250px;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .pair-btn {
+      background: var(--panel);
+      border: var(--border);
+      padding: 15px;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .pair-btn:hover { border-color: var(--cyan); transform: translateX(5px); }
+    .pair-btn.active {
+      background: linear-gradient(90deg, var(--cyan-dim) 0%, transparent 100%);
+      border-left: 4px solid var(--cyan);
+      border-color: var(--cyan);
+    }
+    .pair-info h4 { margin: 0; font-size: 1.1rem; }
+    .pair-info span { font-size: 0.8rem; color: var(--muted); }
+    .signal-badge { background: #111; padding: 4px 8px; border-radius: 4px; font-size: 0.7rem; color: var(--cyan); border: 1px solid var(--cyan); }
+
+    /* --- CHART AREA --- */
+    .terminal-window {
+      flex: 1;
+      background: var(--panel);
+      border: 1px solid rgba(0, 240, 255, 0.3);
+      border-radius: 16px;
+      overflow: hidden;
+      position: relative;
+      box-shadow: 0 0 50px rgba(0,0,0,0.5);
+      backdrop-filter: blur(5px);
+    }
+    
+    .hud-overlay {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      z-index: 10;
+      pointer-events: none;
+      display: flex;
+      gap: 20px;
+    }
+    .hud-item {
+      background: rgba(0,0,0,0.7);
+      padding: 8px 12px;
+      border-radius: 6px;
+      border-left: 2px solid var(--cyan);
+      font-family: monospace;
+      font-size: 0.8rem;
+    }
+
+    @keyframes pulse { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
+    @media (max-width: 768px) { .main-container { flex-direction: column; } .pair-selector { width: 100%; flex-direction: row; overflow-x: auto; } }
   </style>
 </head>
 <body>
-  <div class="header">
-    <h1>SkyAI <span style="color:var(--cyan)">SNIPER</span> // SPOT TERMINAL</h1>
-    <div class="status">● SYSTEM ONLINE</div>
+
+  <div class="top-bar">
+    <div class="brand">
+      <div class="status-dot"></div>
+      SkyAI <span>SNIPER</span>
+    </div>
+    <button class="wallet-btn" onclick="connectWallet()">
+      <i class="fas fa-wallet"></i> <span id="wallet-text">Connect Wallet</span>
+    </button>
   </div>
 
-  <div class="alert-box">
-    <strong>🎯 AKTÍV SNIPER ÜZENET:</strong> Figyeld a BTC 15 perces kitörését! A Telegram bot küldi a pontos belépőt.
-  </div>
+  <div class="main-container">
+    
+    <div class="pair-selector">
+      <div class="pair-btn active" onclick="loadChart('BINANCE:BTCUSDC', this)">
+        <div class="pair-info">
+          <h4>BTC/USDC</h4>
+          <span>Bitcoin Spot</span>
+        </div>
+        <div class="signal-badge">AI: LONG</div>
+      </div>
 
-  <div class="grid">
-    <div class="card">
-      <h3>BTC/USDT (15m)</h3>
-      <div class="tradingview-widget-container" id="tv-btc"></div>
+      <div class="pair-btn" onclick="loadChart('BINANCE:SOLUSDC', this)">
+        <div class="pair-info">
+          <h4>SOL/USDC</h4>
+          <span>Solana Spot</span>
+        </div>
+        <div class="signal-badge">AI: WAIT</div>
+      </div>
+
+      <div class="pair-btn" onclick="loadChart('BINANCE:BNBUSDC', this)">
+        <div class="pair-info">
+          <h4>BNB/USDC</h4>
+          <span>BNB Chain</span>
+        </div>
+        <div class="signal-badge">AI: SHORT</div>
+      </div>
     </div>
-    <div class="card">
-      <h3>SOL/USDT (15m)</h3>
-      <div class="tradingview-widget-container" id="tv-sol"></div>
-    </div>
-    <div class="card">
-      <h3>BNB/USDT (15m)</h3>
-      <div class="tradingview-widget-container" id="tv-bnb"></div>
+
+    <div class="terminal-window">
+      <div class="hud-overlay">
+        <div class="hud-item">MODE: SPOT</div>
+        <div class="hud-item">TIMEFRAME: 15m</div>
+        <div class="hud-item" style="color:var(--cyan)">AI SCANNING...</div>
+      </div>
+      <div id="tv_chart_container" style="height: 100%; width: 100%;"></div>
     </div>
   </div>
 
   <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
   <script>
-    const config = { "interval": "15", "theme": "dark", "style": "1", "locale": "hu_HU", "enable_publishing": false, "hide_top_toolbar": true, "autosize": true };
-    new TradingView.widget(Object.assign({ "symbol": "BINANCE:BTCUSDT", "container_id": "tv-btc" }, config));
-    new TradingView.widget(Object.assign({ "symbol": "BINANCE:SOLUSDT", "container_id": "tv-sol" }, config));
-    new TradingView.widget(Object.assign({ "symbol": "BINANCE:BNBUSDT", "container_id": "tv-bnb" }, config));
+    // Wallet Fake Connect Logic
+    function connectWallet() {
+      const btn = document.getElementById('wallet-text');
+      btn.innerText = "Connecting...";
+      setTimeout(() => {
+        btn.innerText = "0x71...3A92";
+        document.querySelector('.wallet-btn').style.background = "rgba(0, 240, 255, 0.2)";
+      }, 1500);
+    }
+
+    // Chart Loader
+    function loadChart(symbol, element) {
+      // Update Active Class
+      document.querySelectorAll('.pair-btn').forEach(btn => btn.classList.remove('active'));
+      element.classList.add('active');
+
+      // Load Widget
+      new TradingView.widget({
+        "autosize": true,
+        "symbol": symbol,
+        "interval": "15",
+        "timezone": "Europe/Budapest",
+        "theme": "dark",
+        "style": "1",
+        "locale": "hu_HU",
+        "toolbar_bg": "#f1f3f6",
+        "enable_publishing": false,
+        "hide_top_toolbar": false,
+        "allow_symbol_change": false,
+        "container_id": "tv_chart_container",
+        "backgroundColor": "rgba(14, 14, 18, 1)" 
+      });
+    }
+
+    // Init Default
+    window.onload = function() {
+      loadChart('BINANCE:BTCUSDC', document.querySelector('.pair-btn'));
+    };
   </script>
 </body>
 </html>
