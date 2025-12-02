@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+  <meta charset="UTF-8">
+  <title>SkyAI WHALE | VIP Command Center</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    :root { --bg: #050507; --purple: #bc13fe; --text: #fff; }
+    body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; margin: 0; padding: 20px; }
+    .header { border-bottom: 2px solid var(--purple); padding-bottom: 20px; margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center; }
+    .status { color: var(--purple); font-weight: bold; text-transform: uppercase; letter-spacing: 2px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 30px; }
+    .card { background: #121216; border: 1px solid #333; padding: 20px; border-radius: 8px; border-top: 3px solid var(--purple); }
+    .pooolse-badge { background: linear-gradient(45deg, #bc13fe, #00f0ff); padding: 5px 10px; border-radius: 4px; color: #fff; font-size: 0.8rem; font-weight: bold; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>SkyAI <span style="color:var(--purple)">WHALE</span> // VIP COMMAND</h1>
+    <div class="status">● STRATEGIC MODE</div>
+  </div>
+
+  <div style="margin-bottom: 30px; display: flex; gap: 20px;">
+    <div class="card" style="flex: 1;">
+      <h3>🐋 Makro Piaci Áttekintés</h3>
+      <p>A Bálna algoritmus jelenleg akkumulációs fázist jelez a főbb párokon. A Pooolse integráció státusza: <span class="pooolse-badge">AKTÍV</span></p>
+    </div>
+  </div>
+
+  <div class="grid">
+    <div class="card">
+      <h3>BTC/USDT (4H - Trend)</h3>
+      <div class="tradingview-widget-container" id="tv-btc-macro"></div>
+    </div>
+    <div class="card">
+      <h3>ETH/USDT (4H - Trend)</h3>
+      <div class="tradingview-widget-container" id="tv-eth-macro"></div>
+    </div>
+  </div>
+
+  <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+  <script>
+    const config = { "interval": "240", "theme": "dark", "style": "1", "locale": "hu_HU", "enable_publishing": false, "hide_top_toolbar": false, "autosize": true };
+    new TradingView.widget(Object.assign({ "symbol": "BINANCE:BTCUSDT", "container_id": "tv-btc-macro" }, config));
+    new TradingView.widget(Object.assign({ "symbol": "BINANCE:ETHUSDT", "container_id": "tv-eth-macro" }, config));
+  </script>
+</body>
+</html>
