@@ -3,27 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SkyAI Sniper | Web3 Spot Terminal</title>
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;500;700&family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
+    <title>SkyAI Sniper | Deep Spot Terminal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;500;700&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
             --bg: #050507;
             --cyan: #00f0ff;
             --cyan-dim: rgba(0, 240, 255, 0.1);
-            --glass: rgba(14, 14, 18, 0.8);
-            --border: 1px solid rgba(0, 240, 255, 0.2);
+            --glass: rgba(14, 14, 18, 0.85);
+            --border: 1px solid rgba(0, 240, 255, 0.15);
             --text: #ffffff;
-            --pooolse-color: #ffffff; 
         }
 
         body {
             background-color: var(--bg);
             background-image: 
-                radial-gradient(circle at 50% -20%, rgba(0, 240, 255, 0.15) 0%, transparent 40%),
-                linear-gradient(0deg, transparent 99%, rgba(0, 240, 255, 0.05) 100%),
-                linear-gradient(90deg, transparent 99%, rgba(0, 240, 255, 0.05) 100%);
-            background-size: 100% 100%, 50px 50px, 50px 50px;
+                radial-gradient(circle at 50% -20%, rgba(0, 240, 255, 0.1) 0%, transparent 50%),
+                linear-gradient(0deg, transparent 99%, rgba(0, 240, 255, 0.03) 100%),
+                linear-gradient(90deg, transparent 99%, rgba(0, 240, 255, 0.03) 100%);
+            background-size: 100% 100%, 60px 60px, 60px 60px;
             color: var(--text);
             font-family: 'Space Grotesk', sans-serif;
             margin: 0;
@@ -33,48 +32,63 @@
             overflow-x: hidden;
         }
 
-        /* --- HEADER --- */
+        /* --- HEADER (x POOOLSE) --- */
         nav {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 20px 30px;
-            backdrop-filter: blur(10px);
+            padding: 20px 40px;
+            backdrop-filter: blur(15px);
             border-bottom: 1px solid rgba(0, 240, 255, 0.1);
+            position: sticky;
+            top: 0;
             z-index: 100;
+        }
+
+        .brand-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
         }
 
         .brand {
             font-family: 'Rajdhani', sans-serif;
-            font-size: 1.5rem;
+            font-size: 1.6rem;
             font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: 2px;
+            letter-spacing: 1px;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
         }
-        .brand span { color: var(--cyan); text-shadow: 0 0 10px var(--cyan); }
-        .live-dot { width: 8px; height: 8px; background: #00ff9d; border-radius: 50%; box-shadow: 0 0 10px #00ff9d; animation: blink 2s infinite; }
+        .brand span { color: var(--cyan); text-shadow: 0 0 15px var(--cyan); }
+        
+        .x-divider { color: #555; font-size: 1.2rem; font-weight: 300; }
+        
+        .pooolse-logo {
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: 800;
+            font-size: 1.6rem;
+            background: linear-gradient(90deg, #fff, #aaa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 1px;
+        }
 
-        .wallet-btn {
-            background: rgba(0,0,0,0.5);
-            border: 1px solid var(--cyan);
+        .live-indicator {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.7rem;
             color: var(--cyan);
-            padding: 8px 20px;
-            border-radius: 50px;
-            cursor: pointer;
-            transition: 0.3s;
-            font-family: 'Space Grotesk', sans-serif;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 0.9rem;
+            border: 1px solid var(--cyan-dim);
+            padding: 4px 8px;
+            border-radius: 4px;
+            background: rgba(0,0,0,0.3);
         }
-        .wallet-btn:hover { background: var(--cyan); color: #000; box-shadow: 0 0 20px var(--cyan-dim); }
+        .dot { width: 6px; height: 6px; background: var(--cyan); border-radius: 50%; animation: pulse 1.5s infinite; }
 
-        /* --- MAIN CONTENT --- */
+        /* --- SCANNER HUD --- */
         .container {
             flex: 1;
             display: flex;
@@ -82,146 +96,122 @@
             align-items: center;
             justify-content: center;
             padding: 20px;
-            position: relative;
         }
 
         .scanner-hud {
             width: 100%;
-            max-width: 550px;
+            max-width: 600px;
             background: var(--glass);
             border: var(--border);
             border-radius: 20px;
-            padding: 30px;
-            backdrop-filter: blur(20px);
-            box-shadow: 0 0 80px rgba(0, 240, 255, 0.05);
+            padding: 40px;
+            box-shadow: 0 0 100px rgba(0, 240, 255, 0.05);
             position: relative;
             overflow: hidden;
+            transition: height 0.3s ease;
         }
 
-        /* Scan Line Animation */
+        /* Scan Line FX */
         .scan-line {
             position: absolute;
-            top: 0; left: 0; width: 100%; height: 2px;
-            background: var(--cyan);
-            box-shadow: 0 0 15px var(--cyan);
+            top: 0; left: 0; width: 100%; height: 3px;
+            background: linear-gradient(90deg, transparent, var(--cyan), transparent);
             opacity: 0;
             pointer-events: none;
         }
-        .scanning .scan-line { animation: scanDown 1.5s ease-in-out infinite; opacity: 1; }
+        .scanning .scan-line { animation: scanDown 2s ease-in-out infinite; opacity: 1; }
 
+        .hud-header { text-align: center; margin-bottom: 30px; }
+        .hud-header h2 { margin: 0; font-weight: 400; font-size: 1.8rem; letter-spacing: -1px; }
+        .hud-header p { margin: 5px 0 0; font-size: 0.8rem; color: #888; text-transform: uppercase; letter-spacing: 2px; }
+
+        /* ASSET BUTTONS */
         .asset-selector {
             display: flex;
             justify-content: center;
-            gap: 10px;
+            gap: 12px;
             margin-bottom: 30px;
-            flex-wrap: wrap;
         }
-
         .asset-btn {
             background: rgba(255,255,255,0.03);
             border: 1px solid rgba(255,255,255,0.1);
             color: #888;
-            padding: 12px 20px;
-            border-radius: 12px;
+            padding: 14px 24px;
+            border-radius: 10px;
             cursor: pointer;
             transition: 0.3s;
-            font-weight: bold;
+            font-weight: 700;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 1.1rem;
             display: flex;
             align-items: center;
             gap: 8px;
-            min-width: 100px;
-            justify-content: center;
         }
-        .asset-btn:hover { border-color: #fff; color: #fff; }
+        .asset-btn:hover { border-color: #fff; color: #fff; transform: translateY(-2px); }
         .asset-btn.active {
             border-color: var(--cyan);
             color: #000;
             background: var(--cyan);
-            box-shadow: 0 0 25px var(--cyan-dim);
+            box-shadow: 0 0 30px var(--cyan-dim);
         }
 
-        /* --- RESULT CARD --- */
-        .scan-result { display: none; animation: fadeIn 0.5s ease-out; }
-
-        .scan-loader {
-            font-family: 'Rajdhani', sans-serif;
-            font-size: 1.2rem;
+        /* --- CONSOLE LOG (The "Matrix" feel) --- */
+        .console-log {
+            font-family: 'Courier New', monospace;
+            font-size: 0.8rem;
             color: var(--cyan);
-            letter-spacing: 2px;
-            display: none;
-            margin: 40px 0;
-            text-align: center;
+            background: rgba(0,0,0,0.5);
+            padding: 15px;
+            border-radius: 8px;
+            height: 120px;
+            overflow: hidden;
+            margin-bottom: 20px;
+            display: none; /* Hidden until scan */
+            border-left: 2px solid var(--cyan);
+            text-align: left;
         }
+        .log-line { margin-bottom: 4px; opacity: 0.8; }
+
+        /* --- RESULT DATA --- */
+        .scan-result { display: none; animation: fadeIn 0.5s ease-out; }
 
         .data-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 15px;
-            margin-top: 20px;
-            text-align: left;
+            margin-bottom: 25px;
         }
-
         .data-box {
-            background: rgba(0,0,0,0.4);
+            background: rgba(255,255,255,0.02);
             padding: 15px;
             border-radius: 8px;
-            border-left: 2px solid #333;
-            transition: 0.3s;
+            border: 1px solid rgba(255,255,255,0.05);
         }
-        .data-box:hover { border-color: var(--cyan); background: rgba(0, 240, 255, 0.05); }
-
-        .data-label { font-size: 0.7rem; color: #888; text-transform: uppercase; margin-bottom: 5px; }
-        .data-value { font-size: 1.1rem; font-weight: bold; }
+        .data-label { font-size: 0.7rem; color: #666; text-transform: uppercase; margin-bottom: 5px; font-weight: 700; }
+        .data-value { font-size: 1.2rem; font-weight: 700; font-family: 'Rajdhani', sans-serif; }
         
-        .signal-long { color: #00ff9d; text-shadow: 0 0 10px rgba(0,255,157,0.3); }
-        .signal-short { color: #ff2a51; text-shadow: 0 0 10px rgba(255,42,81,0.3); }
-
-        .ai-reasoning {
-            margin-top: 20px;
-            padding: 15px;
-            background: rgba(255,255,255,0.03);
-            border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 8px;
-            text-align: left;
-            font-size: 0.85rem;
-            line-height: 1.6;
-            color: #ccc;
-        }
-
-        /* --- POOOLSE INTEGRATION (BUSINESS) --- */
-        .pooolse-section {
-            margin-top: 25px;
+        .tech-box {
+            background: rgba(0, 240, 255, 0.03);
+            border: 1px solid rgba(0, 240, 255, 0.15);
             padding: 20px;
-            background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.01) 100%);
-            border: 1px solid rgba(255,255,255,0.15);
             border-radius: 12px;
-            text-align: center;
-            position: relative;
-            overflow: hidden;
+            text-align: left;
+            margin-bottom: 25px;
         }
-        .pooolse-section::before {
-            content: 'PARTNER INTEGRÁCIÓ';
-            position: absolute;
-            top: 10px; right: 10px;
-            font-size: 0.5rem;
-            color: #555;
-            border: 1px solid #333;
-            padding: 2px 5px;
-            border-radius: 4px;
-        }
+        .tech-title { color: var(--cyan); font-size: 0.8rem; font-weight: bold; text-transform: uppercase; margin-bottom: 10px; display: flex; justify-content: space-between; }
+        .tech-content { font-size: 0.9rem; line-height: 1.6; color: #ccc; }
 
-        .pooolse-title { font-size: 0.9rem; font-weight: bold; margin-bottom: 5px; color: #fff; }
-        .pooolse-desc { font-size: 0.8rem; color: #888; margin-bottom: 15px; }
-
+        /* POOOLSE ACTION */
         .pooolse-btn {
             width: 100%;
-            padding: 12px;
+            padding: 16px;
             background: #fff;
             color: #000;
             border: none;
             border-radius: 8px;
             font-weight: 800;
             text-transform: uppercase;
+            font-family: 'Space Grotesk', sans-serif;
             cursor: pointer;
             display: flex;
             justify-content: center;
@@ -229,156 +219,171 @@
             gap: 10px;
             transition: 0.3s;
             text-decoration: none;
-            font-size: 0.9rem;
+            letter-spacing: 1px;
         }
-        .pooolse-btn:hover { background: var(--cyan); box-shadow: 0 0 20px var(--cyan); transform: translateY(-2px); }
+        .pooolse-btn:hover { background: var(--cyan); box-shadow: 0 0 30px var(--cyan); letter-spacing: 2px; }
 
-        @keyframes scanDown { 0% { top: 0%; opacity: 0; } 20% { opacity: 1; } 80% { opacity: 1; } 100% { top: 100%; opacity: 0; } }
+        @keyframes scanDown { 0% { top: -10%; opacity: 0; } 50% { opacity: 1; } 100% { top: 110%; opacity: 0; } }
+        @keyframes pulse { 0% { opacity: 1; box-shadow: 0 0 0 0 rgba(0,240,255,0.4); } 70% { opacity: 0.5; box-shadow: 0 0 0 10px rgba(0,240,255,0); } 100% { opacity: 1; } }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+
     </style>
 </head>
 <body>
 
     <nav>
-        <div class="brand">
-            <div class="live-dot"></div>
-            SkyAI <span>Sniper</span>
+        <div class="brand-container">
+            <div class="brand">SkyAI <span>Sniper</span></div>
+            <div class="x-divider">×</div>
+            <div class="pooolse-logo">POOOLSE</div>
         </div>
-        <button class="wallet-btn" onclick="connectWallet()">
-            <i class="fas fa-wallet"></i> <span id="wallet-txt">Connect</span>
-        </button>
+        
+        <div class="live-indicator">
+            <div class="dot"></div> LIVE FEED
+        </div>
     </nav>
 
     <div class="container">
         <div class="scanner-hud" id="hud">
             <div class="scan-line"></div>
             
-            <div style="text-align:center; margin-bottom:20px;">
-                <h2 style="margin:0; font-weight:400; font-size:1.5rem;">AI Spot Scanner</h2>
-                <span style="font-size:0.75rem; color:#666; letter-spacing:1px;">SELECT ASSET TO ANALYZE</span>
+            <div class="hud-header">
+                <h2>Deep Market Scanner</h2>
+                <p>Multi-Timeframe Analysis (1D / 3D / 1W)</p>
             </div>
             
             <div class="asset-selector">
-                <div class="asset-btn" onclick="scanMarket('BTC')"><i class="fab fa-bitcoin"></i> BTC</div>
-                <div class="asset-btn" onclick="scanMarket('BNB')"><i class="fab fa-ethereum"></i> BNB</div>
-                <div class="asset-btn" onclick="scanMarket('SOL')"><i class="fas fa-bolt"></i> SOL</div>
+                <div class="asset-btn" onclick="runDeepScan('BTC')"><i class="fab fa-bitcoin"></i> BTC</div>
+                <div class="asset-btn" onclick="runDeepScan('BNB')"><i class="fab fa-ethereum"></i> BNB</div>
+                <div class="asset-btn" onclick="runDeepScan('SOL')"><i class="fas fa-bolt"></i> SOL</div>
             </div>
 
-            <div id="loader" class="scan-loader">
-                <i class="fas fa-circle-notch fa-spin"></i><br>
-                <span style="font-size:0.8rem; margin-top:10px; display:block;">CALCULATING PROBABILITY...</span>
-            </div>
+            <div class="console-log" id="console"></div>
 
             <div id="result" class="scan-result">
                 
                 <div class="data-grid">
                     <div class="data-box">
-                        <div class="data-label">Signal</div>
-                        <div class="data-value" id="res-signal">---</div>
+                        <div class="data-label">Signal Type</div>
+                        <div class="data-value" id="res-sig" style="color:var(--cyan)">---</div>
                     </div>
                     <div class="data-box">
-                        <div class="data-label">Confidence</div>
-                        <div class="data-value" id="res-prob">---</div>
+                        <div class="data-label">AI Confidence</div>
+                        <div class="data-value" id="res-conf">---</div>
                     </div>
                     <div class="data-box">
-                        <div class="data-label">Entry (Spot)</div>
+                        <div class="data-label">Precision Entry</div>
                         <div class="data-value" id="res-entry">---</div>
                     </div>
                     <div class="data-box">
-                        <div class="data-label">Target (TP)</div>
-                        <div class="data-value" id="res-tp">---</div>
+                        <div class="data-label">Invalidation (SL)</div>
+                        <div class="data-value" id="res-sl" style="color:#ff2a51">---</div>
                     </div>
                 </div>
 
-                <div class="ai-reasoning" id="res-reason">
-                    ---
+                <div class="tech-box">
+                    <div class="tech-title">
+                        <span>AI REASONING CORE</span>
+                        <span>TF: 1D/3D</span>
+                    </div>
+                    <div class="tech-content" id="res-reason">
+                        Waiting for input...
+                    </div>
                 </div>
 
-                <div class="pooolse-section">
-                    <div class="pooolse-title">AUTOMATIZÁLÁS</div>
-                    <div class="pooolse-desc">Ne maradj le a belépőről. Futtasd ezt a szignált a Pooolse botjaival automatikusan.</div>
-                    
-                    <a href="https://app.pooolse.com/join/7974" target="_blank" class="pooolse-btn">
-                        <i class="fas fa-robot"></i> Bot Indítása (Pooolse)
-                    </a>
+                <a href="https://app.pooolse.com/join/7974" target="_blank" class="pooolse-btn">
+                    <i class="fas fa-rocket"></i> Execute via Pooolse
+                </a>
+
+                <div style="text-align:center; font-size:0.7rem; color:#555; margin-top:15px;">
+                    Powered by SkyAI Neural Engine v2.4
                 </div>
 
             </div>
-
         </div>
     </div>
 
     <script>
-        // MOCK DATA - Simulation
         const marketData = {
             'BTC': {
-                signal: 'LONG (ACCUMULATE)',
-                style: 'signal-long',
-                prob: '92%',
-                entry: '$96,200 - $96,500',
-                tp: '$98,800',
-                reason: 'A láncon belüli adatok (on-chain) intézményi felhalmozást mutatnak. Az RSI resetelődött a 1H idősíkon, ideális beszálló Spot pozíciókhoz.'
+                sig: 'LONG (TREND FOLLOW)',
+                conf: '94.2%',
+                entry: '$96,350 ZONE',
+                sl: '$94,800',
+                logs: [
+                    "Connecting to Binance Liquidity Feed...",
+                    "Fetching 1D, 3D, 1W Candles...",
+                    "Analyzing MA(25)... [ABOVE]",
+                    "Analyzing MA(75)... [ABOVE] - Golden Cross Validated",
+                    "Checking MA(200) Trend Baseline... [BULLISH]",
+                    "Calculating Bollinger Band Squeeze (1D)... [EXPANDING]",
+                    "SkyAI Prediction: CONTINUATION"
+                ],
+                reason: "Az árfolyam sikeresen visszatesztelte a <strong>MA(25)</strong> szintet a napi idősíkon. A <strong>75 napos és 200 napos mozgóátlagok</strong> emelkedő trendcsatornát alkotnak. A Bollinger szalag felső szegmense nyílik, ami volatilitás-növekedést jelez a vevői oldalon. Ideális Spot belépő."
             },
             'SOL': {
-                signal: 'LONG (MOMENTUM)',
-                style: 'signal-long',
-                prob: '95%',
-                entry: '$233.50 - $235.00',
-                tp: '$248.00',
-                reason: 'Kitörés a csökkenő ékből. Volume megugrott az elmúlt 30 percben. A Pooolse Grid botok számára magas volatilitás várható.'
+                sig: 'LONG (BREAKOUT)',
+                conf: '97.5%',
+                entry: '$234.00 - $235.50',
+                sl: '$228.00',
+                logs: [
+                    "Detecting Volume Spike (15m)...",
+                    "MA(25) crossing MA(75) on 4H...",
+                    "Weekly Structure: HIGHER HIGHS",
+                    "Bollinger Bands: UPPER BREAKOUT DETECTED",
+                    "RSI (14): 68.5 (Momentum Strong)",
+                    "SkyAI Prediction: AGGRESSIVE PUMP"
+                ],
+                reason: "A Solana árfolyama áttörte a kritikus ellenállást. A <strong>MA(25) dinamikus támaszként</strong> funkcionál. A Bollinger szalagok extrém tágulása erős momentumot igazol. A heti (1W) gyertya struktúrája további emelkedést vetít előre."
             },
             'BNB': {
-                signal: 'NEUTRAL / WAIT',
-                style: '',
-                prob: '48%',
-                entry: 'N/A',
-                tp: 'N/A',
-                reason: 'Bizonytalan trend. A $650-es ellenállás még erős. Javasolt a kivárás vagy a tőke átcsoportosítása SOL/BTC irányba.'
+                sig: 'NEUTRAL / HOLD',
+                conf: '52.0%',
+                entry: 'WAIT FOR $640',
+                sl: 'N/A',
+                logs: [
+                    "Market Structure: RANGING",
+                    "MA(25) is flattening...",
+                    "MA(75) acting as Resistance",
+                    "Bollinger Bands: SQUEEZE MODE (Low Volatility)",
+                    "SkyAI Prediction: CONSOLIDATION"
+                ],
+                reason: "A piac jelenleg oldalazik a <strong>MA(25) és MA(75)</strong> között. A Bollinger szalagok beszűkültek (Squeeze), ami hamarosan nagy mozgást jelez, de az irány még bizonytalan. Javasolt a kivárás a $640-es szint áttöréséig."
             }
         };
 
-        function scanMarket(asset) {
+        function runDeepScan(asset) {
             // UI Reset
             document.querySelectorAll('.asset-btn').forEach(b => b.classList.remove('active'));
             event.currentTarget.classList.add('active');
             document.getElementById('hud').classList.add('scanning');
+            document.getElementById('result').style.display = 'none';
             
-            const loader = document.getElementById('loader');
-            const result = document.getElementById('result');
-            
-            result.style.display = 'none';
-            loader.style.display = 'block';
+            const consoleDiv = document.getElementById('console');
+            consoleDiv.style.display = 'block';
+            consoleDiv.innerHTML = ''; // Clear logs
 
-            // Mesterséges késleltetés a "számolás" érzetért
+            const data = marketData[asset];
+            let delay = 0;
+
+            // Log Animation Loop
+            data.logs.forEach((log, index) => {
+                delay += 400; // Time between logs
+                setTimeout(() => {
+                    const line = document.createElement('div');
+                    line.className = 'log-line';
+                    line.innerText = `> ${log}`;
+                    consoleDiv.appendChild(line);
+                    consoleDiv.scrollTop = consoleDiv.scrollHeight;
+                }, delay);
+            });
+
+            // Final Result Display
             setTimeout(() => {
-                loader.style.display = 'none';
-                result.style.display = 'block';
                 document.getElementById('hud').classList.remove('scanning');
-                
-                const data = marketData[asset];
-                
-                const sigEl = document.getElementById('res-signal');
-                sigEl.innerText = data.signal;
-                sigEl.className = 'data-value ' + data.style;
-                
-                document.getElementById('res-prob').innerText = data.prob;
-                document.getElementById('res-entry').innerText = data.entry;
-                document.getElementById('res-tp').innerText = data.tp;
-                document.getElementById('res-reason').innerHTML = `<strong>🤖 SkyAI Elemzés:</strong> ${data.reason}`;
+                consoleDiv.style.display = 'none';
+                document.getElementById('result').style.display = 'block';
 
-            }, 1500); // 1.5 másodperc scanning
-        }
-
-        function connectWallet() {
-            const btn = document.getElementById('wallet-txt');
-            btn.innerText = "Connecting...";
-            setTimeout(() => {
-                btn.innerText = "0x7A...4B21";
-                document.querySelector('.wallet-btn').style.borderColor = "#00ff9d";
-                document.querySelector('.wallet-btn').style.color = "#00ff9d";
-            }, 1000);
-        }
-    </script>
-</body>
-</html>
+                document.getElementById('res-sig').innerText = data.sig;
+                document.getElementById('res-conf').innerText = data.conf;
+                document.getElementById('res-entry').innerText =
