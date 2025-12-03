@@ -116,20 +116,24 @@
             max-width: 400px;
             box-shadow: 0 0 50px rgba(212, 175, 55, 0.2);
             text-align: center;
+            animation: fadeIn 0.3s ease-out;
         }
 
         .wallet-option {
             background: #222;
-            margin: 10px 0;
-            padding: 15px;
+            margin: 15px 0;
+            padding: 15px 20px;
             border-radius: 8px;
             cursor: pointer;
             display: flex; justify-content: space-between; align-items: center;
             border: 1px solid transparent;
             transition: 0.2s;
         }
-        .wallet-option:hover { border-color: var(--gold); background: #333; }
-        .wallet-icon { width: 30px; height: 30px; }
+        .wallet-option:hover { border-color: var(--gold); background: #333; transform: translateX(5px); }
+        .wallet-info { display: flex; align-items: center; gap: 15px; color: #fff; font-weight: 600; }
+        .wallet-icon { width: 32px; height: 32px; border-radius: 50%; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
 
         /* --- DASHBOARD CONTENT --- */
         .container {
@@ -140,7 +144,9 @@
             gap: 30px;
             opacity: 0.1; /* Halvány, amíg nincs feloldva */
             transition: opacity 1s;
+            pointer-events: none; /* Nem kattintható amíg lockolva van */
         }
+        .container.unlocked { opacity: 1; pointer-events: auto; }
         
         .card {
             background: var(--panel);
@@ -170,28 +176,34 @@
 </head>
 <body>
 
+    <!-- 1. MODAL (WALLET SELECTOR) -->
     <div class="modal-overlay" id="walletModal">
         <div class="modal">
-            <h3 style="color:var(--gold); font-family:'Cinzel'; margin-top:0;">VÁLASSZ TÁRCÁT</h3>
+            <h3 style="color:var(--gold); font-family:'Cinzel'; margin-top:0; letter-spacing:1px;">VÁLASSZ TÁRCÁT</h3>
             
+            <!-- Phantom Option -->
             <div class="wallet-option" onclick="connectProcess('Phantom')">
-                <div style="display:flex; align-items:center; gap:10px; color:#fff; font-weight:bold;">
-                    <img src="https://cryptologos.cc/logos/solana-sol-logo.png" class="wallet-icon"> Phantom
+                <div class="wallet-info">
+                    <img src="https://cryptologos.cc/logos/solana-sol-logo.png" class="wallet-icon" style="background:#53368a; padding:2px;">
+                    Phantom
                 </div>
-                <i class="fas fa-arrow-right" style="color:#666;"></i>
+                <i class="fas fa-chevron-right" style="color:#666;"></i>
             </div>
 
+            <!-- Trust Wallet Option -->
             <div class="wallet-option" onclick="connectProcess('Trust Wallet')">
-                <div style="display:flex; align-items:center; gap:10px; color:#fff; font-weight:bold;">
-                    <img src="https://cryptologos.cc/logos/binance-coin-bnb-logo.png" class="wallet-icon"> Trust Wallet
+                <div class="wallet-info">
+                    <img src="https://cryptologos.cc/logos/trust-wallet-token-twt-logo.png" class="wallet-icon">
+                    Trust Wallet
                 </div>
-                <i class="fas fa-arrow-right" style="color:#666;"></i>
+                <i class="fas fa-chevron-right" style="color:#666;"></i>
             </div>
 
-            <div style="margin-top:20px; color:#666; cursor:pointer; font-size:0.8rem;" onclick="toggleModal(false)">MÉGSE</div>
+            <div style="margin-top:25px; color:#666; cursor:pointer; font-size:0.8rem; letter-spacing:1px;" onclick="toggleModal(false)">BEZÁRÁS</div>
         </div>
     </div>
 
+    <!-- 2. LOCK SCREEN -->
     <div class="lock-screen" id="lockScreen">
         <div class="lock-content">
             <i class="fas fa-shield-alt" style="font-size:3rem; color:var(--purple); margin-bottom:20px;"></i>
@@ -204,18 +216,22 @@
         </div>
     </div>
 
+    <!-- 3. NAVIGATION -->
     <nav>
         <div class="brand">
             SkyAI <span>WHALE</span>
             <div class="partner-badge">x BlockChainBloom</div>
         </div>
+        <!-- FELSŐ GOMB - MINDIG LÁTHATÓ -->
         <button class="connect-btn" id="navBtn" onclick="toggleModal(true)">
             CSATLAKOZÁS
         </button>
     </nav>
 
+    <!-- 4. DASHBOARD CONTENT (HIDDEN INITIALLY) -->
     <div class="container" id="dashboard">
         
+        <!-- SIDEBAR -->
         <div>
             <div class="card" style="background: linear-gradient(135deg, rgba(188,19,254,0.2), transparent);">
                 <div style="color:#aaa; font-size:0.8rem; letter-spacing:2px;">TOTAL NET WORTH</div>
@@ -236,6 +252,7 @@
             </div>
         </div>
 
+        <!-- MAIN -->
         <div>
             <div class="card">
                 <div style="display:flex; justify-content:space-between; margin-bottom:20px;">
@@ -271,11 +288,15 @@
     </div>
 
     <script>
-        // --- EGYSZERŰSÍTETT LOGIKA ---
+        // --- EGYSZERŰSÍTETT ÉS BIZTOS LOGIKA ---
         
         function toggleModal(show) {
             const modal = document.getElementById('walletModal');
-            modal.style.display = show ? 'flex' : 'none';
+            if (show) {
+                modal.style.display = 'flex';
+            } else {
+                modal.style.display = 'none';
+            }
         }
 
         function connectProcess(walletName) {
@@ -285,24 +306,30 @@
             // Gomb visszajelzés (Loading)
             const navBtn = document.getElementById('navBtn');
             const originalText = navBtn.innerText;
-            navBtn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> ...';
+            navBtn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Csatlakozás...';
 
             // Szimulált kapcsolódás (1.5 mp)
             setTimeout(() => {
                 // 1. Zárképernyő eltüntetése
                 const lockScreen = document.getElementById('lockScreen');
                 lockScreen.style.opacity = '0';
-                setTimeout(() => lockScreen.style.display = 'none', 500);
+                
+                // Késleltetett eltüntetés a sima átmenetért
+                setTimeout(() => {
+                    lockScreen.style.display = 'none';
+                }, 500);
 
-                // 2. Tartalom megjelenítése
-                document.getElementById('dashboard').style.opacity = '1';
+                // 2. Tartalom megjelenítése és aktiválása
+                const dash = document.getElementById('dashboard');
+                dash.classList.add('unlocked');
+                dash.style.opacity = '1';
+                dash.style.pointerEvents = 'auto'; // Most már kattintható
 
                 // 3. Gomb frissítése
                 navBtn.innerHTML = `<i class="fas fa-check-circle"></i> ${walletName}`;
                 navBtn.style.color = '#00ff9d';
                 navBtn.style.borderColor = '#00ff9d';
                 
-                // 4. Mentés (opcionális, hogy újratöltéskor is emlékezzen - most egyszerűsítve)
                 console.log("Connected to: " + walletName);
 
             }, 1500);
