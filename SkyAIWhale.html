@@ -3,298 +3,88 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SkyAI Whale | Institutional Terminal</title>
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;500;700&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+    <title>SkyAI Private Vault | Institutional Access</title>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;500;700&family=Cinzel:wght@500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
-            --bg: #000000; /* Teljesen fekete a prémium hatásért */
+            --bg: #050507;
             --purple: #bc13fe;
-            --sky-blue: #00f0ff;
-            --glass: rgba(20, 20, 25, 0.8);
-            --border: 1px solid rgba(188, 19, 254, 0.3);
+            --purple-dim: rgba(188, 19, 254, 0.1);
+            --gold: #d4af37;
             --text: #ffffff;
-            --muted: #888;
+            --panel: rgba(20, 20, 25, 0.6);
+            --border: 1px solid rgba(255, 255, 255, 0.08);
         }
 
         body {
             background-color: var(--bg);
-            /* Finom rácsos háttér a SkyAI tech érzésért */
-            background-image: 
-                linear-gradient(rgba(188, 19, 254, 0.05) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(188, 19, 254, 0.05) 1px, transparent 1px);
-            background-size: 40px 40px;
+            background-image: linear-gradient(180deg, #050507 0%, #0a050d 100%);
             color: var(--text);
-            font-family: 'Space Grotesk', sans-serif;
+            font-family: 'Manrope', sans-serif;
             margin: 0;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
         }
 
-        /* --- HEADER --- */
+        /* --- NAVIGATION --- */
         nav {
+            padding: 20px 40px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 25px 50px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            background: rgba(0, 0, 0, 0.9);
-            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            background: rgba(5,5,7,0.9);
+            backdrop-filter: blur(20px);
             position: sticky;
             top: 0;
-            z-index: 100;
+            z-index: 1000; /* Kiemelt réteg */
         }
 
         .brand {
-            font-family: 'Rajdhani', sans-serif;
-            font-size: 1.8rem;
-            font-weight: 700;
-            letter-spacing: 2px;
-            text-transform: uppercase;
+            font-family: 'Cinzel', serif;
+            font-size: 1.5rem;
+            letter-spacing: 1px;
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 15px;
         }
-        .brand span { color: var(--purple); text-shadow: 0 0 15px var(--purple); }
-        .tier-badge { 
-            font-size: 0.7rem; color: #000; background: var(--purple); 
-            padding: 2px 8px; border-radius: 4px; font-weight: bold; letter-spacing: 1px;
-        }
+        .brand span { color: var(--purple); }
+        .partner-badge { font-family: 'Manrope', sans-serif; font-size: 0.7rem; color: #888; border-left: 1px solid #444; padding-left: 15px; text-transform: uppercase; }
 
         .connect-btn {
             background: transparent;
             border: 1px solid var(--purple);
             color: var(--purple);
-            padding: 10px 30px;
-            border-radius: 50px; /* Kerekített, mint a SkyAI */
+            padding: 10px 25px;
+            border-radius: 4px;
             cursor: pointer;
-            font-family: 'Space Grotesk', sans-serif;
-            font-weight: 700;
+            font-family: 'Manrope', sans-serif;
+            font-weight: 600;
             transition: 0.3s;
             display: flex; align-items: center; gap: 10px;
+            z-index: 1001; /* Biztosan kattintható legyen */
         }
-        .connect-btn:hover { background: var(--purple); color: #fff; box-shadow: 0 0 30px rgba(188, 19, 254, 0.4); }
+        .connect-btn:hover { background: var(--purple); color: #fff; box-shadow: 0 0 30px var(--purple-dim); }
 
-        /* --- MAIN CONTAINER --- */
+        /* --- LAYOUT --- */
         .container {
-            max-width: 1400px;
+            flex: 1;
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            gap: 40px;
+            padding: 40px 50px;
+            max-width: 1800px;
             margin: 0 auto;
-            padding: 40px;
             width: 100%;
             box-sizing: border-box;
-            display: grid;
-            grid-template-columns: 2fr 1fr;
-            gap: 30px;
-        }
-
-        /* --- MODULE STYLES --- */
-        .module {
-            background: #0a0a0f;
-            border: var(--border);
-            border-radius: 12px;
-            padding: 30px;
             position: relative;
-            overflow: hidden;
-        }
-        .module::before {
-            content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%; background: var(--purple);
         }
 
-        .module-header {
-            display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;
-            border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 15px;
-        }
-        .module-title { font-family: 'Rajdhani', sans-serif; font-size: 1.4rem; font-weight: 700; color: #fff; }
-        .module-subtitle { font-size: 0.8rem; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
-
-        /* --- 1. INTELLIGENCE MODULE (SkyAI Data) --- */
-        .macro-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; }
-        .macro-card { background: rgba(255,255,255,0.03); padding: 20px; border-radius: 8px; }
-        .macro-label { font-size: 0.75rem; color: var(--muted); margin-bottom: 8px; }
-        .macro-value { font-size: 1.5rem; font-weight: 700; font-family: 'Rajdhani', sans-serif; color: #fff; }
-        .trend-up { color: #00ff9d; } 
-        .trend-down { color: #ff2a51; }
-
-        /* --- 2. NEWS MODULE (BlockChainBloom) --- */
-        .news-item {
-            padding: 15px 0; border-bottom: 1px solid rgba(255,255,255,0.05);
-            transition: 0.3s;
-        }
-        .news-item:last-child { border-bottom: none; }
-        .news-item:hover { transform: translateX(5px); }
-        .news-meta { font-size: 0.7rem; color: var(--purple); margin-bottom: 5px; display: flex; justify-content: space-between; }
-        .news-headline { font-size: 1rem; line-height: 1.4; color: #ddd; font-weight: 500; }
-        .news-source { font-size: 0.65rem; color: #555; margin-top: 5px; text-transform: uppercase; }
-
-        /* --- 3. STRATEGY MODULE (Pooolse) --- */
-        .strategy-box {
-            background: linear-gradient(135deg, rgba(188,19,254,0.05) 0%, transparent 100%);
-            border: 1px solid rgba(188, 19, 254, 0.2);
-            border-radius: 8px; padding: 20px; text-align: center; margin-top: 20px;
-        }
-        .strategy-title { font-weight: 700; font-size: 1.1rem; color: #fff; margin-bottom: 10px; }
-        .pooolse-btn {
-            display: inline-flex; align-items: center; gap: 10px;
-            padding: 12px 30px; background: #fff; color: #000; border-radius: 50px;
-            font-weight: 800; text-decoration: none; text-transform: uppercase;
-            font-size: 0.9rem; transition: 0.3s; margin-top: 15px;
-        }
-        .pooolse-btn:hover { background: var(--purple); color: #fff; box-shadow: 0 0 20px rgba(188,19,254,0.5); }
-
-        /* --- WALLET OVERLAY (BLUR) --- */
-        .locked-layer {
+        /* --- LOCK STATE (Zárolt képernyő) --- */
+        .blur-overlay {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.6); backdrop-filter: blur(12px);
-            z-index: 10; display: flex; flex-direction: column;
-            justify-content: center; align-items: center; text-align: center;
-            border-radius: 12px;
-        }
-        .lock-icon { font-size: 3rem; color: var(--purple); margin-bottom: 20px; }
-        .lock-msg { font-size: 1.2rem; margin-bottom: 30px; max-width: 400px; line-height: 1.6; }
-
-        /* MODAL */
-        .modal-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.9); z-index: 200; display: none;
-            justify-content: center; align-items: center;
-        }
-        .modal { background: #111; border: 1px solid #333; padding: 40px; border-radius: 16px; width: 350px; }
-        .wallet-option {
-            display: flex; align-items: center; gap: 15px; padding: 15px;
-            background: #1a1a1a; border-radius: 8px; margin-bottom: 10px; cursor: pointer;
-            border: 1px solid transparent; transition: 0.2s;
-        }
-        .wallet-option:hover { border-color: var(--purple); background: #222; }
-        .w-icon { width: 30px; }
-
-        @media (max-width: 900px) { .container { grid-template-columns: 1fr; } }
-    </style>
-</head>
-<body>
-
-    <div class="modal-overlay" id="walletModal">
-        <div class="modal">
-            <h3 style="text-align:center; font-family:'Rajdhani'; margin-top:0;">CSATLAKOZÁS</h3>
-            <div class="wallet-option" onclick="unlockDashboard('Phantom')">
-                <img src="https://cryptologos.cc/logos/solana-sol-logo.png" class="w-icon">
-                <span style="font-weight:600;">Phantom</span>
-            </div>
-            <div class="wallet-option" onclick="unlockDashboard('Trust Wallet')">
-                <img src="https://cryptologos.cc/logos/binance-coin-bnb-logo.png" class="w-icon">
-                <span style="font-weight:600;">Trust Wallet</span>
-            </div>
-            <div style="text-align:center; margin-top:20px; font-size:0.8rem; color:#666; cursor:pointer;" onclick="closeModal()">Mégse</div>
-        </div>
-    </div>
-
-    <nav>
-        <div class="brand">
-            SkyAI <span>WHALE</span>
-            <div class="tier-badge">INSTITUTIONAL</div>
-        </div>
-        <button class="connect-btn" id="navBtn" onclick="openModal()">
-            <i class="fas fa-wallet"></i> Wallet Connect
-        </button>
-    </nav>
-
-    <div class="container">
-        
-        <div style="display:flex; flex-direction:column; gap:30px;">
-            
-            <div class="module">
-                <div class="locked-layer" id="lock1">
-                    <i class="fas fa-lock lock-icon"></i>
-                    <div class="lock-msg">A piaci adatok megtekintéséhez azonosítás szükséges.</div>
-                    <button class="connect-btn" onclick="openModal()">Csatlakozás</button>
-                </div>
-
-                <div class="module-header">
-                    <div>
-                        <div class="module-title">SkyAI Macro Intelligence</div>
-                        <div class="module-subtitle">Valós idejű piaci ciklus elemzés</div>
-                    </div>
-                    <div style="color:var(--sky-blue); font-size:0.8rem;">● LIVE FEED</div>
-                </div>
-
-                <div class="macro-grid">
-                    <div class="macro-card">
-                        <div class="macro-label">PIACI CIKLUS</div>
-                        <div class="macro-value" style="color:var(--purple)">AKKUMULÁCIÓ</div>
-                    </div>
-                    <div class="macro-card">
-                        <div class="macro-label">INTÉZMÉNYI MOZGÁS</div>
-                        <div class="macro-value trend-up">+12.4% INFLOW</div>
-                    </div>
-                    <div class="macro-card">
-                        <div class="macro-label">VAGYONKEZELŐI SENTIMENT</div>
-                        <div class="macro-value">BULLISH</div>
-                    </div>
-                </div>
-                
-                <div style="margin-top:20px; font-size:0.9rem; line-height:1.6; color:#ccc;">
-                    <strong>🤖 SkyAI Elemzés:</strong> A nagy tárcák (>1000 BTC) aktivitása növekszik. A volatilitás csökkenése stabil alapot nyújt a <strong>hosszú távú pozíciók</strong> építéséhez. Javasolt a tőke 60%-át alacsony kockázatú eszközökbe (BTC/ETH) helyezni.
-                </div>
-            </div>
-
-            <div class="module">
-                <div class="locked-layer" id="lock2"></div> <div class="module-header">
-                    <div>
-                        <div class="module-title">Institutional Automation</div>
-                        <div class="module-subtitle">Powered by Pooolse</div>
-                    </div>
-                </div>
-
-                <div style="text-align:center;">
-                    <p style="color:#aaa; max-width:500px; margin:0 auto;">
-                        A Bálnák nem manuálisan kereskednek. Automatizálja vagyonkezelését a SkyAI által validált stratégiákkal.
-                    </p>
-
-                    <div class="strategy-box">
-                        <div class="strategy-title">Ajánlott Konfiguráció: "Smart Rebalance"</div>
-                        <div style="font-size:0.9rem; color:#888; margin-bottom:15px;">
-                            40% BTC | 30% ETH | 30% USDT
-                        </div>
-                        <a href="https://app.pooolse.com/join/7974" target="_blank" class="pooolse-btn">
-                            <i class="fas fa-robot"></i> Rendszer Kiépítése
-                        </a>
-                    </div>
-                </div>
-            </div>
-
-        </div>
-
-        <div class="module" style="height:fit-content;">
-            <div class="locked-layer" id="lock3"></div>
-
-            <div class="module-header">
-                <div>
-                    <div class="module-title">Market Intel</div>
-                    <div class="module-subtitle">Source: BlockChainBloom HU</div>
-                </div>
-            </div>
-
-            <div class="news-item">
-                <div class="news-meta">
-                    <span>MA, 10:45</span>
-                    <span>BREAKING</span>
-                </div>
-                <div class="news-headline">A BlackRock újabb rekordot döntött az ETF beáramlásokban.</div>
-                <div class="news-source">blockchainbloom.com</div>
-            </div>
-
-            <div class="news-item">
-                <div class="news-meta">
-                    <span>MA, 08:30</span>
-                    <span>MACRO</span>
-                </div>
-                <div class="news-headline">Az inflációs adatok kedvezőek, a FED kamatvágása valószínűsíthető.</div>
-                <div class="news-source">blockchainbloom.com</div>
-            </div>
-
-            <div class="news-item">
-                <div class="news-meta">
-                    <span>TEGNAP</span>
-                    <span>ON-CHAIN</span>
-                </div>
-                <div class="news-headline">Jelentős mennyiségű ETH hagyta el a tőzsdé
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            background: rgba(5,5,7,0.6
