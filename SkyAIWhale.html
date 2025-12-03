@@ -283,4 +283,86 @@
             <div>
                 <div class="intel-header">
                     <div class="intel-title"><i class="fas fa-globe-americas"></i> Global Intelligence Feed</div>
-                    <div style="font-size:0.8rem; color:#666;">SOURCE: BLOCK
+                    <div style="font-size:0.8rem; color:#666;">SOURCE: BLOCKCHAINBLOOM HU</div>
+                </div>
+
+                <div class="news-feed">
+                    <div class="news-highlight">
+                        <div style="font-family:monospace; color:var(--purple); margin-bottom:10px;">2025.12.03. - PIACI ELEMZÉS</div>
+                        <div class="news-headline" id="dailyHeadline">Betöltés...</div>
+                        <div class="news-body" id="dailyBody">A legfrissebb piaci adatok lekérése folyamatban...</div>
+                        
+                        <div class="skyai-insight">
+                            <span class="insight-label">SKYAI INTELLIGENCE REPORT:</span>
+                            <span id="skyInsight">Az AI algoritmus elemzi a hír hatását a portfóliójára...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <div class="intel-header">
+                    <div class="intel-title"><i class="fas fa-chess"></i> Execution Protocols</div>
+                </div>
+                <div class="exec-grid">
+                    <div class="exec-card" onclick="window.open('https://app.pooolse.com/join/7974', '_blank')">
+                        <i class="fas fa-university card-icon"></i>
+                        <div class="card-title">Institutional Rebalance</div>
+                        <div class="card-desc">Automatikus portfólió súlyozás a volatilitás csökkentésére. Ideális: €5000+ tőke esetén.</div>
+                    </div>
+                    <div class="exec-card" onclick="window.open('https://app.pooolse.com/join/7974', '_blank')">
+                        <i class="fas fa-layer-group card-icon"></i>
+                        <div class="card-title">Accumulation Grid</div>
+                        <div class="card-desc">Bitcoin felhalmozás a piaci korrekciók során. Passzív jövedelem generálás oldalazásban.</div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <script>
+        // --- DATA SOURCE (MANUALLY UPDATABLE OR FETCHABLE) ---
+        const dailyIntel = {
+            headline: "Az Intézményi Tőke Beáramlása Folytatódik: A BlackRock ETF Rekordot Döntött",
+            body: "A legfrissebb adatok szerint a Wall Street intézményi befektetői a tegnapi napon rekord mennyiségű Bitcoint vásároltak az ETF-eken keresztül. Ez a lépés egyértelműen jelzi, hogy a hagyományos pénzügyi szektor hosszú távú emelkedésre számít, függetlenül a rövid távú makrogazdasági zajoktól.",
+            insight: "A SkyAI Bálna Algoritmusa <strong style='color:#d4af37'>BULLISH</strong> szentimentet azonosított. A tőzsdékről kifelé áramló BTC (Outflow) kínálati sokkot vetít előre. Javasolt stratégia: A meglévő Spot pozíciók tartása és a Smart DCA botok sávjának tágítása felfelé."
+        };
+
+        function openModal() {
+            document.getElementById('walletModal').style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('walletModal').style.display = 'none';
+        }
+
+        function confirmWallet(walletName) {
+            const btn = document.querySelector('.connect-btn'); // Gomb a modalban vagy headerben
+            closeModal();
+            
+            // Simulation logic
+            document.getElementById('lockScreen').innerHTML = '<div style="color:var(--purple); font-family:\'Cinzel\'">AUTHENTICATING...</div>';
+            
+            setTimeout(() => {
+                document.getElementById('lockScreen').style.opacity = '0';
+                setTimeout(() => document.getElementById('lockScreen').style.display = 'none', 800);
+                
+                // Update UI
+                document.getElementById('navConnectBtn').innerHTML = `<i class="fas fa-check-circle"></i> ${walletName}`;
+                document.getElementById('navConnectBtn').style.borderColor = '#00ff9d';
+                document.getElementById('navConnectBtn').style.color = '#00ff9d';
+                
+                document.getElementById('userBalance').innerText = "€ 12,450.00"; // Mock balance
+                
+                // Load Content
+                document.getElementById('dailyHeadline').innerText = dailyIntel.headline;
+                document.getElementById('dailyBody').innerText = dailyIntel.body;
+                document.getElementById('skyInsight').innerHTML = dailyIntel.insight;
+                
+            }, 1500);
+        }
+    </script>
+</body>
+</html>
