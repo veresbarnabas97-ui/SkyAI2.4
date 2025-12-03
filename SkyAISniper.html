@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SkyAI Sniper | Deep Spot Terminal</title>
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;500;700&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;500;700&family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
@@ -12,17 +12,17 @@
             --cyan: #00f0ff;
             --cyan-dim: rgba(0, 240, 255, 0.1);
             --glass: rgba(14, 14, 18, 0.85);
-            --border: 1px solid rgba(0, 240, 255, 0.15);
+            --border: 1px solid rgba(0, 240, 255, 0.2);
             --text: #ffffff;
         }
 
         body {
             background-color: var(--bg);
             background-image: 
-                radial-gradient(circle at 50% -20%, rgba(0, 240, 255, 0.1) 0%, transparent 50%),
-                linear-gradient(0deg, transparent 99%, rgba(0, 240, 255, 0.03) 100%),
-                linear-gradient(90deg, transparent 99%, rgba(0, 240, 255, 0.03) 100%);
-            background-size: 100% 100%, 60px 60px, 60px 60px;
+                radial-gradient(circle at 50% -20%, rgba(0, 240, 255, 0.15) 0%, transparent 40%),
+                linear-gradient(0deg, transparent 99%, rgba(0, 240, 255, 0.05) 100%),
+                linear-gradient(90deg, transparent 99%, rgba(0, 240, 255, 0.05) 100%);
+            background-size: 100% 100%, 50px 50px, 50px 50px;
             color: var(--text);
             font-family: 'Space Grotesk', sans-serif;
             margin: 0;
@@ -32,63 +32,52 @@
             overflow-x: hidden;
         }
 
-        /* --- HEADER (x POOOLSE) --- */
+        /* --- HEADER --- */
         nav {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 20px 40px;
-            backdrop-filter: blur(15px);
+            padding: 20px 30px;
+            backdrop-filter: blur(10px);
             border-bottom: 1px solid rgba(0, 240, 255, 0.1);
             position: sticky;
             top: 0;
             z-index: 100;
         }
 
-        .brand-container {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
         .brand {
             font-family: 'Rajdhani', sans-serif;
-            font-size: 1.6rem;
+            font-size: 1.5rem;
             font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 2px;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
         }
-        .brand span { color: var(--cyan); text-shadow: 0 0 15px var(--cyan); }
+        .brand span { color: var(--cyan); text-shadow: 0 0 10px var(--cyan); }
         
-        .x-divider { color: #555; font-size: 1.2rem; font-weight: 300; }
-        
-        .pooolse-logo {
-            font-family: 'Rajdhani', sans-serif;
-            font-weight: 800;
-            font-size: 1.6rem;
-            background: linear-gradient(90deg, #fff, #aaa);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            letter-spacing: 1px;
-        }
+        .x-tag { font-size: 0.8rem; color: #666; font-weight: 300; }
+        .pooolse-logo { font-weight: 800; color: #fff; letter-spacing: 1px; }
 
-        .live-indicator {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-size: 0.7rem;
+        .wallet-btn {
+            background: rgba(0,0,0,0.6);
+            border: 1px solid var(--cyan);
             color: var(--cyan);
-            border: 1px solid var(--cyan-dim);
-            padding: 4px 8px;
-            border-radius: 4px;
-            background: rgba(0,0,0,0.3);
+            padding: 10px 24px;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: 0.3s;
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 0 10px var(--cyan-dim);
         }
-        .dot { width: 6px; height: 6px; background: var(--cyan); border-radius: 50%; animation: pulse 1.5s infinite; }
+        .wallet-btn:hover { background: var(--cyan); color: #000; box-shadow: 0 0 20px var(--cyan); }
 
-        /* --- SCANNER HUD --- */
+        /* --- MAIN CONTENT --- */
         .container {
             flex: 1;
             display: flex;
@@ -98,120 +87,109 @@
             padding: 20px;
         }
 
+        /* --- SCANNER HUD (V2 Design) --- */
         .scanner-hud {
             width: 100%;
-            max-width: 600px;
+            max-width: 550px;
             background: var(--glass);
             border: var(--border);
             border-radius: 20px;
-            padding: 40px;
-            box-shadow: 0 0 100px rgba(0, 240, 255, 0.05);
+            padding: 30px;
+            backdrop-filter: blur(20px);
+            box-shadow: 0 0 80px rgba(0, 240, 255, 0.05);
             position: relative;
             overflow: hidden;
-            transition: height 0.3s ease;
+            margin-bottom: 30px;
         }
 
-        /* Scan Line FX */
         .scan-line {
             position: absolute;
-            top: 0; left: 0; width: 100%; height: 3px;
-            background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+            top: 0; left: 0; width: 100%; height: 2px;
+            background: var(--cyan);
+            box-shadow: 0 0 15px var(--cyan);
             opacity: 0;
             pointer-events: none;
         }
-        .scanning .scan-line { animation: scanDown 2s ease-in-out infinite; opacity: 1; }
+        .scanning .scan-line { animation: scanDown 1.5s ease-in-out infinite; opacity: 1; }
 
-        .hud-header { text-align: center; margin-bottom: 30px; }
-        .hud-header h2 { margin: 0; font-weight: 400; font-size: 1.8rem; letter-spacing: -1px; }
-        .hud-header p { margin: 5px 0 0; font-size: 0.8rem; color: #888; text-transform: uppercase; letter-spacing: 2px; }
-
-        /* ASSET BUTTONS */
         .asset-selector {
             display: flex;
             justify-content: center;
             gap: 12px;
-            margin-bottom: 30px;
+            margin-bottom: 25px;
         }
+
         .asset-btn {
             background: rgba(255,255,255,0.03);
             border: 1px solid rgba(255,255,255,0.1);
             color: #888;
-            padding: 14px 24px;
-            border-radius: 10px;
+            padding: 12px 20px;
+            border-radius: 12px;
             cursor: pointer;
             transition: 0.3s;
-            font-weight: 700;
-            font-family: 'Rajdhani', sans-serif;
-            font-size: 1.1rem;
+            font-weight: bold;
             display: flex;
             align-items: center;
             gap: 8px;
         }
-        .asset-btn:hover { border-color: #fff; color: #fff; transform: translateY(-2px); }
+        .asset-btn:hover { border-color: #fff; color: #fff; }
         .asset-btn.active {
             border-color: var(--cyan);
             color: #000;
             background: var(--cyan);
-            box-shadow: 0 0 30px var(--cyan-dim);
+            box-shadow: 0 0 25px var(--cyan-dim);
         }
 
-        /* --- CONSOLE LOG (The "Matrix" feel) --- */
-        .console-log {
-            font-family: 'Courier New', monospace;
-            font-size: 0.8rem;
-            color: var(--cyan);
-            background: rgba(0,0,0,0.5);
-            padding: 15px;
-            border-radius: 8px;
-            height: 120px;
-            overflow: hidden;
-            margin-bottom: 20px;
-            display: none; /* Hidden until scan */
-            border-left: 2px solid var(--cyan);
-            text-align: left;
-        }
-        .log-line { margin-bottom: 4px; opacity: 0.8; }
-
-        /* --- RESULT DATA --- */
+        /* --- RESULTS --- */
         .scan-result { display: none; animation: fadeIn 0.5s ease-out; }
+        
+        .scan-loader {
+            display: none; text-align: center; margin: 40px 0;
+            color: var(--cyan); font-family: 'Rajdhani', sans-serif; letter-spacing: 2px;
+        }
 
         .data-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 15px;
-            margin-bottom: 25px;
+            margin-top: 20px;
+            text-align: left;
         }
+
         .data-box {
-            background: rgba(255,255,255,0.02);
+            background: rgba(0,0,0,0.4);
             padding: 15px;
             border-radius: 8px;
-            border: 1px solid rgba(255,255,255,0.05);
+            border-left: 2px solid #333;
         }
-        .data-label { font-size: 0.7rem; color: #666; text-transform: uppercase; margin-bottom: 5px; font-weight: 700; }
-        .data-value { font-size: 1.2rem; font-weight: 700; font-family: 'Rajdhani', sans-serif; }
+        .data-label { font-size: 0.7rem; color: #888; text-transform: uppercase; margin-bottom: 5px; }
+        .data-value { font-size: 1.1rem; font-weight: bold; }
         
-        .tech-box {
+        .signal-long { color: #00ff9d; text-shadow: 0 0 10px rgba(0,255,157,0.3); }
+
+        .deep-scan-info {
+            margin-top: 20px;
+            padding: 15px;
             background: rgba(0, 240, 255, 0.03);
             border: 1px solid rgba(0, 240, 255, 0.15);
-            padding: 20px;
-            border-radius: 12px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            line-height: 1.6;
+            color: #ccc;
             text-align: left;
-            margin-bottom: 25px;
         }
-        .tech-title { color: var(--cyan); font-size: 0.8rem; font-weight: bold; text-transform: uppercase; margin-bottom: 10px; display: flex; justify-content: space-between; }
-        .tech-content { font-size: 0.9rem; line-height: 1.6; color: #ccc; }
+        .highlight { color: var(--cyan); font-weight: bold; }
 
-        /* POOOLSE ACTION */
+        /* POOOLSE INTEGRATION */
         .pooolse-btn {
             width: 100%;
-            padding: 16px;
+            padding: 15px;
             background: #fff;
             color: #000;
             border: none;
             border-radius: 8px;
             font-weight: 800;
             text-transform: uppercase;
-            font-family: 'Space Grotesk', sans-serif;
             cursor: pointer;
             display: flex;
             justify-content: center;
@@ -219,37 +197,68 @@
             gap: 10px;
             transition: 0.3s;
             text-decoration: none;
-            letter-spacing: 1px;
+            margin-top: 20px;
         }
-        .pooolse-btn:hover { background: var(--cyan); box-shadow: 0 0 30px var(--cyan); letter-spacing: 2px; }
+        .pooolse-btn:hover { background: var(--cyan); box-shadow: 0 0 20px var(--cyan); transform: translateY(-2px); }
 
-        @keyframes scanDown { 0% { top: -10%; opacity: 0; } 50% { opacity: 1; } 100% { top: 110%; opacity: 0; } }
-        @keyframes pulse { 0% { opacity: 1; box-shadow: 0 0 0 0 rgba(0,240,255,0.4); } 70% { opacity: 0.5; box-shadow: 0 0 0 10px rgba(0,240,255,0); } 100% { opacity: 1; } }
+        /* --- EDUCATIONAL SECTION (New) --- */
+        .edu-toggle {
+            margin-top: 20px;
+            background: transparent;
+            border: 1px solid #333;
+            color: #666;
+            padding: 10px 20px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .edu-toggle:hover { border-color: var(--cyan); color: var(--cyan); }
+
+        .edu-panel {
+            max-width: 550px;
+            width: 100%;
+            background: #111;
+            border: 1px solid #333;
+            border-radius: 12px;
+            padding: 20px;
+            display: none; /* Hidden by default */
+            animation: fadeIn 0.5s;
+            margin-bottom: 40px;
+        }
+        .edu-title { color: var(--cyan); font-weight: bold; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+        .edu-text { font-size: 0.85rem; color: #aaa; line-height: 1.6; }
+        .edu-list { margin: 10px 0; padding-left: 20px; }
+        .edu-list li { margin-bottom: 5px; }
+
+        @keyframes scanDown { 0% { top: 0%; opacity: 0; } 20% { opacity: 1; } 80% { opacity: 1; } 100% { top: 100%; opacity: 0; } }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
     </style>
 </head>
 <body>
 
     <nav>
-        <div class="brand-container">
-            <div class="brand">SkyAI <span>Sniper</span></div>
-            <div class="x-divider">×</div>
-            <div class="pooolse-logo">POOOLSE</div>
+        <div class="brand">
+            SkyAI <span>Sniper</span>
+            <span class="x-tag">×</span>
+            <span class="pooolse-logo">POOOLSE</span>
         </div>
-        
-        <div class="live-indicator">
-            <div class="dot"></div> LIVE FEED
-        </div>
+        <button class="wallet-btn" onclick="connectWallet()">
+            <i class="fas fa-wallet"></i> <span id="wallet-txt">Connect Wallet</span>
+        </button>
     </nav>
 
     <div class="container">
+        
         <div class="scanner-hud" id="hud">
             <div class="scan-line"></div>
             
-            <div class="hud-header">
-                <h2>Deep Market Scanner</h2>
-                <p>Multi-Timeframe Analysis (1D / 3D / 1W)</p>
+            <div style="text-align:center; margin-bottom:25px;">
+                <h2 style="margin:0; font-weight:400; font-size:1.6rem;">Deep Spot Scanner</h2>
+                <span style="font-size:0.75rem; color:#666; letter-spacing:1px;">API CONNECTION: ACTIVE</span>
             </div>
             
             <div class="asset-selector">
@@ -258,97 +267,103 @@
                 <div class="asset-btn" onclick="runDeepScan('SOL')"><i class="fas fa-bolt"></i> SOL</div>
             </div>
 
-            <div class="console-log" id="console"></div>
+            <div id="loader" class="scan-loader">
+                <i class="fas fa-microchip fa-spin"></i><br><br>
+                ANALYZING MA(200) TREND...<br>
+                CALCULATING BOLLINGER SQUEEZE...
+            </div>
 
             <div id="result" class="scan-result">
                 
                 <div class="data-grid">
                     <div class="data-box">
-                        <div class="data-label">Signal Type</div>
-                        <div class="data-value" id="res-sig" style="color:var(--cyan)">---</div>
+                        <div class="data-label">Signal</div>
+                        <div class="data-value signal-long" id="res-sig">LONG</div>
                     </div>
                     <div class="data-box">
-                        <div class="data-label">AI Confidence</div>
-                        <div class="data-value" id="res-conf">---</div>
+                        <div class="data-label">Confidence</div>
+                        <div class="data-value" id="res-prob">94%</div>
                     </div>
                     <div class="data-box">
-                        <div class="data-label">Precision Entry</div>
-                        <div class="data-value" id="res-entry">---</div>
+                        <div class="data-label">Spot Entry</div>
+                        <div class="data-value" id="res-entry">$96,200</div>
                     </div>
                     <div class="data-box">
-                        <div class="data-label">Invalidation (SL)</div>
-                        <div class="data-value" id="res-sl" style="color:#ff2a51">---</div>
+                        <div class="data-label">Target</div>
+                        <div class="data-value" id="res-tp">$98,500</div>
                     </div>
                 </div>
 
-                <div class="tech-box">
-                    <div class="tech-title">
-                        <span>AI REASONING CORE</span>
-                        <span>TF: 1D/3D</span>
-                    </div>
-                    <div class="tech-content" id="res-reason">
-                        Waiting for input...
-                    </div>
+                <div class="deep-scan-info" id="res-reason">
+                    ---
                 </div>
 
                 <a href="https://app.pooolse.com/join/7974" target="_blank" class="pooolse-btn">
-                    <i class="fas fa-rocket"></i> Execute via Pooolse
+                    <i class="fas fa-robot"></i> Kereskedés Indítása (Pooolse)
                 </a>
-
-                <div style="text-align:center; font-size:0.7rem; color:#555; margin-top:15px;">
-                    Powered by SkyAI Neural Engine v2.4
-                </div>
 
             </div>
         </div>
+
+        <button class="edu-toggle" onclick="toggleEdu()">
+            <i class="fas fa-info-circle"></i> Hogyan működik a Deep Scanner?
+        </button>
+
+        <div class="edu-panel" id="eduPanel">
+            <div class="edu-title"><i class="fas fa-layer-group"></i> SkyAI Deep Scanner Technológia</div>
+            <div class="edu-text">
+                A SkyAI Sniper nem csak az árfolyamot nézi. A Deep Scan algoritmus valós időben, API kapcsolaton keresztül vizsgálja a piac mélységét 3 különböző idősíkon (1D, 4H, 15m).
+                <br><br>
+                <strong>Mit figyel az algoritmus?</strong>
+                <ul class="edu-list">
+                    <li><span style="color:#fff">MA(25) és MA(75):</span> A rövid és középtávú trendek keresztezéseit (Golden Cross).</li>
+                    <li><span style="color:#fff">MA(200):</span> A hosszú távú bika/medve piac meghatározása. Csak akkor adunk vételi jelet, ha az árfolyam ezen szint felett stabilizálódik.</li>
+                    <li><span style="color:#fff">Bollinger Szalagok:</span> A volatilitás mérése. A beszűkülés (Squeeze) utáni kitöréseket keressük.</li>
+                </ul>
+                Mindezt egyetlen kattintással, hogy Te a lényegre koncentrálhass: a Profita.
+            </div>
+        </div>
+
     </div>
 
     <script>
+        // MOCK DATA WITH DEEP SCAN LOGIC
         const marketData = {
             'BTC': {
-                sig: 'LONG (TREND FOLLOW)',
-                conf: '94.2%',
-                entry: '$96,350 ZONE',
-                sl: '$94,800',
-                logs: [
-                    "Connecting to Binance Liquidity Feed...",
-                    "Fetching 1D, 3D, 1W Candles...",
-                    "Analyzing MA(25)... [ABOVE]",
-                    "Analyzing MA(75)... [ABOVE] - Golden Cross Validated",
-                    "Checking MA(200) Trend Baseline... [BULLISH]",
-                    "Calculating Bollinger Band Squeeze (1D)... [EXPANDING]",
-                    "SkyAI Prediction: CONTINUATION"
-                ],
-                reason: "Az árfolyam sikeresen visszatesztelte a <strong>MA(25)</strong> szintet a napi idősíkon. A <strong>75 napos és 200 napos mozgóátlagok</strong> emelkedő trendcsatornát alkotnak. A Bollinger szalag felső szegmense nyílik, ami volatilitás-növekedést jelez a vevői oldalon. Ideális Spot belépő."
+                sig: 'LONG (SPOT)',
+                prob: '94.2%',
+                entry: '$96,350 zóna',
+                tp: '$98,800',
+                reason: `
+                    <strong>Technikai Elemzés:</strong> Az árfolyam sikeresen visszatesztelte a <span class="highlight">MA(25)</span> szintet a napi idősíkon. 
+                    A 200 napos mozgóátlag emelkedő trendet igazol. A Bollinger szalagok felső szegmense nyílik, ami volatilitás-növekedést jelez a vevői oldalon.
+                    <br><br>
+                    <strong>Ajánlás:</strong> Spot pozíció nyitása a jelenlegi visszatesztben.
+                `
             },
             'SOL': {
                 sig: 'LONG (BREAKOUT)',
-                conf: '97.5%',
-                entry: '$234.00 - $235.50',
-                sl: '$228.00',
-                logs: [
-                    "Detecting Volume Spike (15m)...",
-                    "MA(25) crossing MA(75) on 4H...",
-                    "Weekly Structure: HIGHER HIGHS",
-                    "Bollinger Bands: UPPER BREAKOUT DETECTED",
-                    "RSI (14): 68.5 (Momentum Strong)",
-                    "SkyAI Prediction: AGGRESSIVE PUMP"
-                ],
-                reason: "A Solana árfolyama áttörte a kritikus ellenállást. A <strong>MA(25) dinamikus támaszként</strong> funkcionál. A Bollinger szalagok extrém tágulása erős momentumot igazol. A heti (1W) gyertya struktúrája további emelkedést vetít előre."
+                prob: '97.5%',
+                entry: '$234.00 - $235.00',
+                tp: '$248.00',
+                reason: `
+                    <strong>Technikai Elemzés:</strong> A Solana áttörte a kritikus ellenállást. A <span class="highlight">MA(75) és MA(200)</span> fölött stabil a szerkezet. 
+                    A 4 órás idősíkon RSI divergencia nincs, a momentum erős. Volume spike észlelhető az elmúlt 15 percben.
+                    <br><br>
+                    <strong>Ajánlás:</strong> Agresszív Spot belépő vagy Pooolse Grid Bot indítása.
+                `
             },
             'BNB': {
-                sig: 'NEUTRAL / HOLD',
-                conf: '52.0%',
-                entry: 'WAIT FOR $640',
-                sl: 'N/A',
-                logs: [
-                    "Market Structure: RANGING",
-                    "MA(25) is flattening...",
-                    "MA(75) acting as Resistance",
-                    "Bollinger Bands: SQUEEZE MODE (Low Volatility)",
-                    "SkyAI Prediction: CONSOLIDATION"
-                ],
-                reason: "A piac jelenleg oldalazik a <strong>MA(25) és MA(75)</strong> között. A Bollinger szalagok beszűkültek (Squeeze), ami hamarosan nagy mozgást jelez, de az irány még bizonytalan. Javasolt a kivárás a $640-es szint áttöréséig."
+                sig: 'NEUTRAL / WAIT',
+                prob: '45.0%',
+                entry: 'N/A',
+                tp: 'N/A',
+                reason: `
+                    <strong>Technikai Elemzés:</strong> A BNB jelenleg oldalazik a <span class="highlight">MA(25) és MA(75)</span> között. 
+                    A Bollinger szalagok beszűkültek (Squeeze), ami hamarosan nagy mozgást jelez, de az irány még bizonytalan.
+                    <br><br>
+                    <strong>Ajánlás:</strong> Kivárás a $640-es szint áttöréséig.
+                `
             }
         };
 
@@ -357,33 +372,48 @@
             document.querySelectorAll('.asset-btn').forEach(b => b.classList.remove('active'));
             event.currentTarget.classList.add('active');
             document.getElementById('hud').classList.add('scanning');
-            document.getElementById('result').style.display = 'none';
             
-            const consoleDiv = document.getElementById('console');
-            consoleDiv.style.display = 'block';
-            consoleDiv.innerHTML = ''; // Clear logs
+            const loader = document.getElementById('loader');
+            const result = document.getElementById('result');
+            const edu = document.getElementById('eduPanel');
+            
+            result.style.display = 'none';
+            edu.style.display = 'none'; // Auto hide edu when scanning
+            loader.style.display = 'block';
 
-            const data = marketData[asset];
-            let delay = 0;
-
-            // Log Animation Loop
-            data.logs.forEach((log, index) => {
-                delay += 400; // Time between logs
-                setTimeout(() => {
-                    const line = document.createElement('div');
-                    line.className = 'log-line';
-                    line.innerText = `> ${log}`;
-                    consoleDiv.appendChild(line);
-                    consoleDiv.scrollTop = consoleDiv.scrollHeight;
-                }, delay);
-            });
-
-            // Final Result Display
+            // Simulate AI Calculation
             setTimeout(() => {
+                loader.style.display = 'none';
+                result.style.display = 'block';
                 document.getElementById('hud').classList.remove('scanning');
-                consoleDiv.style.display = 'none';
-                document.getElementById('result').style.display = 'block';
-
+                
+                const data = marketData[asset];
+                
                 document.getElementById('res-sig').innerText = data.sig;
-                document.getElementById('res-conf').innerText = data.conf;
-                document.getElementById('res-entry').innerText =
+                document.getElementById('res-sig').className = data.sig.includes('LONG') ? 'data-value signal-long' : 'data-value';
+                
+                document.getElementById('res-prob').innerText = data.prob;
+                document.getElementById('res-entry').innerText = data.entry;
+                document.getElementById('res-tp').innerText = data.tp;
+                document.getElementById('res-reason').innerHTML = data.reason;
+
+            }, 1800); // 1.8s scan time for realism
+        }
+
+        function toggleEdu() {
+            const p = document.getElementById('eduPanel');
+            p.style.display = p.style.display === 'block' ? 'none' : 'block';
+        }
+
+        function connectWallet() {
+            const btn = document.getElementById('wallet-txt');
+            btn.innerText = "Connecting...";
+            setTimeout(() => {
+                btn.innerText = "0x7A...4B21";
+                document.querySelector('.wallet-btn').style.borderColor = "#00ff9d";
+                document.querySelector('.wallet-btn').style.color = "#00ff9d";
+            }, 1000);
+        }
+    </script>
+</body>
+</html>
