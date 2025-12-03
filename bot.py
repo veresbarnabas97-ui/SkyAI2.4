@@ -67,16 +67,21 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     register_user(user)
     
     text = (
-        f"🌌 **Üdvözöllek a SkyAI Központban, {user.first_name}!**\n\n"
-        "Ez a rendszer a **SPOT AI Botok** és a **Pooolse** ökoszisztéma belépési pontja.\n"
-        "Itt aktiválhatod a hozzáférésedet a privát Dashboardokhoz és az AI szignálokhoz.\n\n"
-        "🔻 **Válassz Csomagot:**"
+        f"🌌 **Üdvözöllek a SkyAI Parancsnoki Központban, {user.first_name}!**\n\n"
+        "Ez a rendszer a **SkyAI SPOT Algoritmusok** és a **Pooolse** ökoszisztéma hivatalos belépési pontja.\n\n"
+        "🤖 **Mit kínálunk?**\n"
+        "Nem egyszerű szignálokat, hanem komplett **Web3 Kereskedési Terminált**.\n"
+        "A fizetés után azonnali hozzáférést kapsz a privát, reklámmentes Dashboardhoz, ahol az AI valós időben elemzi a piacot.\n\n"
+        "🔻 **Válassz Hozzáférést:**"
     )
+
     keyboard = [
         [InlineKeyboardButton("🎯 SkyAI Sniper (Spot) - 15k Ft", callback_data='info_sniper')],
         [InlineKeyboardButton("🐋 SkyAI Whale (VIP) - 45k Ft", callback_data='info_whale')],
+        [InlineKeyboardButton("⚡ Pooolse Integráció (Info)", url="https://pooolse.com")],
         [InlineKeyboardButton("🆘 Ügyfélszolgálat", url="https://t.me/VeresBarnabas1")]
     ]
+    
     if update.callback_query:
         await update.callback_query.message.edit_text(text, reply_markup=InlineKeyboardMarkup(keyboard), parse_mode='Markdown')
     else:
@@ -149,3 +154,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+
