@@ -1,238 +1,330 @@
 <!DOCTYPE html>
 <html lang="hu">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SkyAI Sniper | Web3 Terminal</title>
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;500;700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <style>
-    :root {
-      --bg: #050507;
-      --panel: rgba(14, 14, 18, 0.7);
-      --cyan: #00f0ff;
-      --cyan-dim: rgba(0, 240, 255, 0.1);
-      --text: #ffffff;
-      --muted: #9ca3af;
-      --border: 1px solid rgba(255, 255, 255, 0.1);
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SkyAI Sniper | Web3 Spot Terminal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;500;700&family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg: #050507;
+            --cyan: #00f0ff;
+            --cyan-dim: rgba(0, 240, 255, 0.1);
+            --glass: rgba(14, 14, 18, 0.6);
+            --border: 1px solid rgba(0, 240, 255, 0.2);
+            --text: #ffffff;
+        }
 
-    body {
-      background-color: var(--bg);
-      background-image: 
-        radial-gradient(circle at 15% 50%, rgba(0, 240, 255, 0.08) 0%, transparent 25%),
-        linear-gradient(rgba(0, 240, 255, 0.03) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(0, 240, 255, 0.03) 1px, transparent 1px);
-      background-size: 100% 100%, 40px 40px, 40px 40px;
-      color: var(--text);
-      font-family: 'Inter', sans-serif;
-      margin: 0;
-      height: 100vh;
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-    }
+        body {
+            background-color: var(--bg);
+            background-image: 
+                radial-gradient(circle at 50% -20%, rgba(0, 240, 255, 0.15) 0%, transparent 40%),
+                linear-gradient(0deg, transparent 99%, rgba(0, 240, 255, 0.05) 100%),
+                linear-gradient(90deg, transparent 99%, rgba(0, 240, 255, 0.05) 100%);
+            background-size: 100% 100%, 50px 50px, 50px 50px;
+            color: var(--text);
+            font-family: 'Space Grotesk', sans-serif;
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
 
-    /* --- TOP BAR --- */
-    .top-bar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 15px 30px;
-      border-bottom: 1px solid rgba(0, 240, 255, 0.2);
-      backdrop-filter: blur(10px);
-      background: rgba(5, 5, 7, 0.8);
-    }
+        /* --- HEADER --- */
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 40px;
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(0, 240, 255, 0.1);
+        }
 
-    .brand {
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: 1.5rem;
-      font-weight: 700;
-      letter-spacing: -1px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-    .brand span { color: var(--cyan); text-shadow: 0 0 15px var(--cyan); }
-    .status-dot { width: 8px; height: 8px; background: var(--cyan); border-radius: 50%; box-shadow: 0 0 10px var(--cyan); animation: pulse 2s infinite; }
+        .brand {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .brand span { color: var(--cyan); text-shadow: 0 0 10px var(--cyan); }
+        .pooolse-tag { font-size: 0.7rem; background: #fff; color: #000; padding: 2px 6px; border-radius: 4px; font-weight: bold; margin-left: 10px; }
 
-    .wallet-btn {
-      background: var(--cyan-dim);
-      border: 1px solid var(--cyan);
-      color: var(--cyan);
-      padding: 10px 20px;
-      border-radius: 8px;
-      font-weight: 600;
-      font-family: 'Space Grotesk', sans-serif;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .wallet-btn:hover { background: var(--cyan); color: #000; box-shadow: 0 0 20px var(--cyan-dim); }
+        .wallet-btn {
+            background: rgba(0,0,0,0.5);
+            border: 1px solid var(--cyan);
+            color: var(--cyan);
+            padding: 10px 25px;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: 0.3s;
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .wallet-btn:hover { background: var(--cyan); color: #000; box-shadow: 0 0 20px var(--cyan-dim); }
 
-    /* --- MAIN LAYOUT --- */
-    .main-container {
-      flex: 1;
-      display: flex;
-      padding: 20px;
-      gap: 20px;
-    }
+        /* --- MAIN CONTENT --- */
+        .container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            position: relative;
+        }
 
-    /* --- SIDEBAR SELECTOR --- */
-    .pair-selector {
-      width: 250px;
-      display: flex;
-      flex-direction: column;
-      gap: 15px;
-    }
+        .scanner-hud {
+            width: 100%;
+            max-width: 600px;
+            background: var(--glass);
+            border: var(--border);
+            border-radius: 20px;
+            padding: 30px;
+            backdrop-filter: blur(20px);
+            box-shadow: 0 0 50px rgba(0,0,0,0.5);
+            position: relative;
+        }
 
-    .pair-btn {
-      background: var(--panel);
-      border: var(--border);
-      padding: 15px;
-      border-radius: 12px;
-      cursor: pointer;
-      transition: all 0.3s;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-    .pair-btn:hover { border-color: var(--cyan); transform: translateX(5px); }
-    .pair-btn.active {
-      background: linear-gradient(90deg, var(--cyan-dim) 0%, transparent 100%);
-      border-left: 4px solid var(--cyan);
-      border-color: var(--cyan);
-    }
-    .pair-info h4 { margin: 0; font-size: 1.1rem; }
-    .pair-info span { font-size: 0.8rem; color: var(--muted); }
-    .signal-badge { background: #111; padding: 4px 8px; border-radius: 4px; font-size: 0.7rem; color: var(--cyan); border: 1px solid var(--cyan); }
+        .scanner-hud::before {
+            content: ''; position: absolute; top: -1px; left: 50%; transform: translateX(-50%); width: 100px; height: 2px; background: var(--cyan); box-shadow: 0 0 10px var(--cyan);
+        }
 
-    /* --- CHART AREA --- */
-    .terminal-window {
-      flex: 1;
-      background: var(--panel);
-      border: 1px solid rgba(0, 240, 255, 0.3);
-      border-radius: 16px;
-      overflow: hidden;
-      position: relative;
-      box-shadow: 0 0 50px rgba(0,0,0,0.5);
-      backdrop-filter: blur(5px);
-    }
-    
-    .hud-overlay {
-      position: absolute;
-      top: 20px;
-      left: 20px;
-      z-index: 10;
-      pointer-events: none;
-      display: flex;
-      gap: 20px;
-    }
-    .hud-item {
-      background: rgba(0,0,0,0.7);
-      padding: 8px 12px;
-      border-radius: 6px;
-      border-left: 2px solid var(--cyan);
-      font-family: monospace;
-      font-size: 0.8rem;
-    }
+        .asset-selector {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
 
-    @keyframes pulse { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
-    @media (max-width: 768px) { .main-container { flex-direction: column; } .pair-selector { width: 100%; flex-direction: row; overflow-x: auto; } }
-  </style>
+        .asset-btn {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: #888;
+            padding: 12px 24px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: 0.3s;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .asset-btn.active, .asset-btn:hover {
+            border-color: var(--cyan);
+            color: #fff;
+            background: var(--cyan-dim);
+            box-shadow: 0 0 15px var(--cyan-dim);
+        }
+
+        /* --- RESULT CARD (HIDDEN BY DEFAULT) --- */
+        .scan-result {
+            display: none; /* JS will toggle */
+            text-align: center;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .scan-loader {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 1.5rem;
+            color: var(--cyan);
+            letter-spacing: 3px;
+            display: none;
+            margin: 40px 0;
+            text-shadow: 0 0 10px var(--cyan);
+        }
+
+        .data-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 20px;
+            text-align: left;
+        }
+
+        .data-box {
+            background: rgba(0,0,0,0.3);
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 2px solid var(--cyan);
+        }
+        .data-label { font-size: 0.75rem; color: #888; text-transform: uppercase; }
+        .data-value { font-size: 1.2rem; font-weight: bold; margin-top: 5px; }
+        .signal-long { color: #00ff9d; text-shadow: 0 0 10px rgba(0,255,157,0.3); }
+        .signal-short { color: #ff2a51; text-shadow: 0 0 10px rgba(255,42,81,0.3); }
+
+        .ai-reasoning {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(0, 240, 255, 0.05);
+            border: 1px solid rgba(0, 240, 255, 0.2);
+            border-radius: 8px;
+            text-align: left;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .pooolse-btn {
+            margin-top: 25px;
+            width: 100%;
+            padding: 15px;
+            background: var(--cyan);
+            color: #000;
+            border: none;
+            border-radius: 8px;
+            font-weight: 700;
+            text-transform: uppercase;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            transition: 0.3s;
+        }
+        .pooolse-btn:hover { background: #fff; box-shadow: 0 0 20px var(--cyan); }
+        .pooolse-btn:disabled { background: #333; color: #666; cursor: not-allowed; box-shadow: none; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+    </style>
 </head>
 <body>
 
-  <div class="top-bar">
-    <div class="brand">
-      <div class="status-dot"></div>
-      SkyAI <span>SNIPER</span>
-    </div>
-    <button class="wallet-btn" onclick="connectWallet()">
-      <i class="fas fa-wallet"></i> <span id="wallet-text">Connect Wallet</span>
-    </button>
-  </div>
-
-  <div class="main-container">
-    
-    <div class="pair-selector">
-      <div class="pair-btn active" onclick="loadChart('BINANCE:BTCUSDC', this)">
-        <div class="pair-info">
-          <h4>BTC/USDC</h4>
-          <span>Bitcoin Spot</span>
+    <nav>
+        <div class="brand">
+            <i class="fas fa-crosshairs" style="color:var(--cyan)"></i> SkyAI <span>Sniper</span>
+            <div class="pooolse-tag">x POOOLSE</div>
         </div>
-        <div class="signal-badge">AI: LONG</div>
-      </div>
+        <button class="wallet-btn" onclick="connectWallet()">
+            <i class="fas fa-wallet"></i> <span id="wallet-txt">Connect Wallet</span>
+        </button>
+    </nav>
 
-      <div class="pair-btn" onclick="loadChart('BINANCE:SOLUSDC', this)">
-        <div class="pair-info">
-          <h4>SOL/USDC</h4>
-          <span>Solana Spot</span>
-        </div>
-        <div class="signal-badge">AI: WAIT</div>
-      </div>
+    <div class="container">
+        <div class="scanner-hud">
+            <h2 style="text-align:center; margin-top:0; font-weight:300;">AI Spot Scanner</h2>
+            
+            <div class="asset-selector">
+                <div class="asset-btn" onclick="scanMarket('BTC')"><i class="fab fa-bitcoin"></i> BTC</div>
+                <div class="asset-btn" onclick="scanMarket('BNB')"><i class="fab fa-ethereum"></i> BNB</div>
+                <div class="asset-btn" onclick="scanMarket('SOL')"><i class="fas fa-bolt"></i> SOL</div>
+            </div>
 
-      <div class="pair-btn" onclick="loadChart('BINANCE:BNBUSDC', this)">
-        <div class="pair-info">
-          <h4>BNB/USDC</h4>
-          <span>BNB Chain</span>
+            <div id="loader" class="scan-loader">
+                <i class="fas fa-circle-notch fa-spin"></i> ANALYSIS RUNNING...
+            </div>
+
+            <div id="result" class="scan-result">
+                <div style="font-size: 0.8rem; color: #888; margin-bottom: 10px;">IDŐSÍK: 1 ÓRA | MÓD: SPOT</div>
+                
+                <div class="data-grid">
+                    <div class="data-box">
+                        <div class="data-label">Signal</div>
+                        <div class="data-value" id="res-signal">---</div>
+                    </div>
+                    <div class="data-box">
+                        <div class="data-label">Confidence</div>
+                        <div class="data-value" id="res-prob">---</div>
+                    </div>
+                    <div class="data-box">
+                        <div class="data-label">Entry Zone</div>
+                        <div class="data-value" id="res-entry">---</div>
+                    </div>
+                    <div class="data-box">
+                        <div class="data-label">Target (TP)</div>
+                        <div class="data-value" id="res-tp">---</div>
+                    </div>
+                </div>
+
+                <div class="ai-reasoning" id="res-reason">
+                    Válassz egy eszközt a fenti menüből az elemzés indításához.
+                </div>
+
+                <button class="pooolse-btn" onclick="window.open('https://pooolse.com', '_blank')">
+                    <i class="fas fa-robot"></i> Automata Bot Indítása (Pooolse)
+                </button>
+                <div style="font-size:0.7rem; color:#555; margin-top:10px;">*Integration coming soon to SkyAI Dashboard</div>
+            </div>
+
         </div>
-        <div class="signal-badge">AI: SHORT</div>
-      </div>
     </div>
 
-    <div class="terminal-window">
-      <div class="hud-overlay">
-        <div class="hud-item">MODE: SPOT</div>
-        <div class="hud-item">TIMEFRAME: 15m</div>
-        <div class="hud-item" style="color:var(--cyan)">AI SCANNING...</div>
-      </div>
-      <div id="tv_chart_container" style="height: 100%; width: 100%;"></div>
-    </div>
-  </div>
+    <script>
+        // MOCK DATA - Ezt váltja majd ki a valódi API a jövőben
+        const marketData = {
+            'BTC': {
+                signal: 'LONG (SPOT)',
+                style: 'signal-long',
+                prob: '89%',
+                entry: '$96,450 - $96,800',
+                tp: '$98,200',
+                reason: 'Erős vételi nyomás a 96k támasz szinten. Volume növekedés észlelhető, RSI kilépett a túladott zónából.'
+            },
+            'SOL': {
+                signal: 'LONG (SPOT)',
+                style: 'signal-long',
+                prob: '94%',
+                entry: '$232.00 - $234.50',
+                tp: '$245.00',
+                reason: 'Bika zászló formáció kitörése megerősítve. A Pooolse trendfigyelő botok agresszív vételt jeleznek.'
+            },
+            'BNB': {
+                signal: 'WAIT / NEUTRAL',
+                style: '',
+                prob: '45%',
+                entry: 'N/A',
+                tp: 'N/A',
+                reason: 'Bizonytalan piaci szerkezet. Oldalazás várható a $640-$650 sávban. Spot belépő jelenleg nem javasolt.'
+            }
+        };
 
-  <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
-  <script>
-    // Wallet Fake Connect Logic
-    function connectWallet() {
-      const btn = document.getElementById('wallet-text');
-      btn.innerText = "Connecting...";
-      setTimeout(() => {
-        btn.innerText = "0x71...3A92";
-        document.querySelector('.wallet-btn').style.background = "rgba(0, 240, 255, 0.2)";
-      }, 1500);
-    }
+        function scanMarket(asset) {
+            // UI Reset
+            document.querySelectorAll('.asset-btn').forEach(b => b.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+            
+            const loader = document.getElementById('loader');
+            const result = document.getElementById('result');
+            
+            result.style.display = 'none';
+            loader.style.display = 'block';
 
-    // Chart Loader
-    function loadChart(symbol, element) {
-      // Update Active Class
-      document.querySelectorAll('.pair-btn').forEach(btn => btn.classList.remove('active'));
-      element.classList.add('active');
+            // Simulate AI Calculation Delay
+            setTimeout(() => {
+                loader.style.display = 'none';
+                result.style.display = 'block';
+                
+                const data = marketData[asset];
+                
+                const sigEl = document.getElementById('res-signal');
+                sigEl.innerText = data.signal;
+                sigEl.className = 'data-value ' + data.style;
+                
+                document.getElementById('res-prob').innerText = data.prob;
+                document.getElementById('res-entry').innerText = data.entry;
+                document.getElementById('res-tp').innerText = data.tp;
+                document.getElementById('res-reason').innerHTML = `<strong>🤖 SkyAI Elemzés:</strong> ${data.reason}`;
 
-      // Load Widget
-      new TradingView.widget({
-        "autosize": true,
-        "symbol": symbol,
-        "interval": "15",
-        "timezone": "Europe/Budapest",
-        "theme": "dark",
-        "style": "1",
-        "locale": "hu_HU",
-        "toolbar_bg": "#f1f3f6",
-        "enable_publishing": false,
-        "hide_top_toolbar": false,
-        "allow_symbol_change": false,
-        "container_id": "tv_chart_container",
-        "backgroundColor": "rgba(14, 14, 18, 1)" 
-      });
-    }
+            }, 1200);
+        }
 
-    // Init Default
-    window.onload = function() {
-      loadChart('BINANCE:BTCUSDC', document.querySelector('.pair-btn'));
-    };
-  </script>
+        function connectWallet() {
+            const btn = document.getElementById('wallet-txt');
+            btn.innerText = "Connecting...";
+            setTimeout(() => {
+                btn.innerText = "0x7A...4B21";
+                document.querySelector('.wallet-btn').style.borderColor = "#00ff9d";
+                document.querySelector('.wallet-btn').style.color = "#00ff9d";
+            }, 1000);
+        }
+    </script>
 </body>
 </html>
