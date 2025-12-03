@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SkyAI Whale | Automation Hub</title>
+    <title>SkyAI Whale | Private Vault</title>
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;500;700&family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
             --bg: #050507;
             --purple: #bc13fe;
-            --purple-dim: rgba(188, 19, 254, 0.15);
+            --purple-dim: rgba(188, 19, 254, 0.1);
             --gold: #d4af37;
             --glass: rgba(18, 14, 24, 0.9);
             --border: 1px solid rgba(188, 19, 254, 0.3);
@@ -20,10 +20,10 @@
         body {
             background-color: var(--bg);
             background-image: 
-                radial-gradient(circle at 80% 20%, rgba(188, 19, 254, 0.1) 0%, transparent 60%),
+                radial-gradient(circle at 50% -20%, rgba(188, 19, 254, 0.15) 0%, transparent 60%),
                 linear-gradient(0deg, transparent 99%, rgba(188, 19, 254, 0.03) 100%),
                 linear-gradient(90deg, transparent 99%, rgba(188, 19, 254, 0.03) 100%);
-            background-size: 100% 100%, 70px 70px, 70px 70px;
+            background-size: 100% 100%, 60px 60px, 60px 60px;
             color: var(--text);
             font-family: 'Space Grotesk', sans-serif;
             margin: 0;
@@ -33,7 +33,7 @@
             overflow-x: hidden;
         }
 
-        /* --- HEADER (Sniper Stílus, Whale Színek) --- */
+        /* --- HEADER --- */
         nav {
             display: flex;
             justify-content: space-between;
@@ -46,14 +46,19 @@
             z-index: 100;
         }
 
-        .brand-container { display: flex; align-items: center; gap: 15px; }
-        .brand { font-family: 'Rajdhani', sans-serif; font-size: 1.6rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; display: flex; align-items: center; gap: 8px; }
-        .brand span { color: var(--purple); text-shadow: 0 0 15px var(--purple); }
-        .x-divider { color: #555; font-size: 1.2rem; font-weight: 300; }
-        .pooolse-logo { 
-            font-family: 'Rajdhani', sans-serif; font-weight: 800; font-size: 1.6rem; 
-            background: linear-gradient(90deg, #fff, var(--gold)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: 1px; 
+        .brand {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 1.6rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
+        .brand span { color: var(--purple); text-shadow: 0 0 15px var(--purple); }
+        .x-tag { font-size: 0.8rem; color: #666; font-weight: 300; }
+        .partner-logo { font-weight: 800; color: #fff; letter-spacing: 1px; font-size: 0.9rem; }
 
         .wallet-btn {
             background: rgba(20, 10, 30, 0.6);
@@ -71,183 +76,169 @@
         .wallet-btn:hover { background: var(--purple); color: #fff; box-shadow: 0 0 30px var(--purple-dim); }
 
         /* --- CONTAINER --- */
-        .container { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 30px; }
+        .container { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 30px; position: relative; }
 
+        /* --- LOCKED STATE (Overlay) --- */
+        .locked-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(5, 5, 7, 0.8);
+            backdrop-filter: blur(10px);
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            z-index: 50;
+            transition: opacity 0.8s ease;
+        }
+        .lock-icon { font-size: 4rem; color: var(--purple); margin-bottom: 20px; animation: pulse 2s infinite; }
+        .lock-title { font-family: 'Rajdhani', sans-serif; font-size: 2rem; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 5px; }
+        .lock-desc { color: #888; max-width: 400px; text-align: center; margin-bottom: 30px; }
+        
+        .big-connect-btn {
+            padding: 15px 40px; background: var(--purple); color: #fff; border: none;
+            border-radius: 4px; font-weight: 700; font-family: 'Space Grotesk', sans-serif;
+            text-transform: uppercase; letter-spacing: 2px; cursor: pointer;
+            box-shadow: 0 0 50px var(--purple-dim); transition: 0.3s;
+        }
+        .big-connect-btn:hover { transform: scale(1.05); box-shadow: 0 0 80px var(--purple-dim); }
+
+        /* --- DASHBOARD HUD (Hidden initially) --- */
         .dashboard-hud {
-            width: 100%; max-width: 800px; /* Szélesebb a Whale nézethez */
-            background: var(--glass);
-            border: var(--border);
-            border-radius: 20px;
-            padding: 40px;
-            box-shadow: 0 0 100px rgba(188, 19, 254, 0.05);
-            position: relative;
-            overflow: hidden;
+            width: 100%; max-width: 900px;
+            background: var(--glass); border: var(--border); border-radius: 20px;
+            padding: 40px; box-shadow: 0 0 100px rgba(188, 19, 254, 0.05);
+            position: relative; overflow: hidden;
+            opacity: 0.3; /* Dimmed when locked */
+            filter: blur(5px);
+            transition: all 1s ease;
         }
 
-        .scan-line {
-            position: absolute; top: 0; left: 0; width: 100%; height: 2px;
-            background: var(--gold); opacity: 0; pointer-events: none;
-            box-shadow: 0 0 20px var(--gold);
-        }
-        .scanning .scan-line { animation: scanDown 2s ease-in-out infinite; opacity: 1; }
+        .dashboard-hud.unlocked { opacity: 1; filter: blur(0); }
 
-        .hud-header h2 { margin: 0; font-weight: 400; font-size: 2rem; letter-spacing: -1px; text-align: center; }
-        .hud-header p { margin: 10px 0 30px; font-size: 0.8rem; color: #888; text-transform: uppercase; letter-spacing: 3px; text-align: center; }
+        .hud-header { display: flex; justify-content: space-between; align-items: end; margin-bottom: 30px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 20px; }
+        .hud-title h2 { margin: 0; font-size: 1.8rem; font-weight: 400; letter-spacing: -1px; }
+        .hud-title p { margin: 5px 0 0; color: var(--gold); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 2px; }
 
-        /* CAPITAL SELECTOR (Stratégia választó) */
-        .capital-selector { display: flex; justify-content: center; gap: 20px; margin-bottom: 40px; }
-        .cap-btn {
-            background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); color: #888;
-            padding: 15px 30px; border-radius: 12px; cursor: pointer; transition: 0.3s;
-            font-weight: 700; font-family: 'Rajdhani', sans-serif; font-size: 1.1rem;
-            display: flex; flex-direction: column; align-items: center; gap: 5px; min-width: 140px;
-        }
-        .cap-btn span { font-size: 0.7rem; font-family: 'Space Grotesk', sans-serif; font-weight: 400; color: #666; }
+        /* --- CONTENT GRID --- */
+        .grid { display: grid; grid-template-columns: 2fr 1fr; gap: 30px; }
+
+        /* LEFT: STRATEGY */
+        .strategy-panel { display: flex; flex-direction: column; gap: 20px; }
         
-        .cap-btn:hover { border-color: #fff; color: #fff; transform: translateY(-3px); }
-        .cap-btn.active {
-            border-color: var(--purple); color: #fff; background: var(--purple-dim);
-            box-shadow: 0 0 30px var(--purple-dim);
+        .stat-card {
+            background: rgba(255,255,255,0.02); border-left: 3px solid var(--purple);
+            padding: 20px; border-radius: 4px;
         }
-        .cap-btn.active span { color: var(--purple); }
-
-        /* --- METRICS GRID --- */
-        .scan-result { display: none; animation: fadeIn 0.6s ease-out; }
+        .stat-label { font-size: 0.7rem; color: #888; text-transform: uppercase; letter-spacing: 1px; }
+        .stat-val { font-size: 1.5rem; font-weight: 700; font-family: 'Rajdhani', sans-serif; margin-top: 5px; }
         
-        .metrics-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin-bottom: 30px; }
-        .metric-box {
-            background: rgba(0,0,0,0.4); padding: 20px; border-radius: 8px; border-left: 2px solid #444;
-            display: flex; flex-direction: column; justify-content: space-between;
+        /* RIGHT: BCBLOOM INTEL */
+        .news-panel {
+            background: linear-gradient(180deg, rgba(255,255,255,0.03) 0%, transparent 100%);
+            border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; padding: 20px;
         }
-        .metric-label { font-size: 0.7rem; color: #888; text-transform: uppercase; margin-bottom: 10px; letter-spacing: 1px; }
-        .metric-value { font-size: 1.4rem; font-weight: 700; font-family: 'Rajdhani', sans-serif; }
+        .news-header { font-size: 0.8rem; font-weight: 700; color: #fff; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; }
+        .news-item { margin-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 10px; }
+        .news-date { font-size: 0.65rem; color: var(--purple); font-family: monospace; }
+        .news-title { font-size: 0.9rem; color: #ccc; line-height: 1.4; margin-top: 4px; display: block; text-decoration: none; transition: 0.2s; }
+        .news-title:hover { color: #fff; transform: translateX(5px); }
+
+        /* ACTION AREA */
+        .action-area { grid-column: 1 / -1; margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1); display: flex; justify-content: space-between; align-items: center; }
         
-        .text-gold { color: var(--gold); text-shadow: 0 0 15px rgba(212, 175, 55, 0.3); }
-        .text-purple { color: var(--purple); text-shadow: 0 0 15px var(--purple-dim); }
-
-        /* --- INNOVATION: ALLOCATION BAR --- */
-        .allocation-container { margin: 30px 0; }
-        .alloc-title { display: flex; justify-content: space-between; font-size: 0.8rem; color: #ccc; margin-bottom: 10px; }
-        .alloc-bar { height: 12px; background: #222; border-radius: 6px; overflow: hidden; display: flex; }
-        .bar-safe { height: 100%; background: var(--purple); width: 0%; transition: width 1s ease-in-out; }
-        .bar-growth { height: 100%; background: var(--gold); width: 0%; transition: width 1s ease-in-out; }
-        
-        .alloc-legend { display: flex; gap: 20px; margin-top: 10px; font-size: 0.75rem; color: #666; }
-        .legend-item { display: flex; align-items: center; gap: 6px; }
-        .dot-purple { width: 8px; height: 8px; background: var(--purple); border-radius: 50%; }
-        .dot-gold { width: 8px; height: 8px; background: var(--gold); border-radius: 50%; }
-
-        /* STRATEGY CARD */
-        .strategy-card {
-            background: linear-gradient(135deg, rgba(188,19,254,0.05) 0%, rgba(212,175,55,0.05) 100%);
-            border: 1px solid rgba(188, 19, 254, 0.3);
-            border-radius: 12px; padding: 25px; text-align: left; margin-bottom: 30px;
-        }
-        .strat-title { color: #fff; font-weight: 700; margin-bottom: 10px; font-size: 1.1rem; display: flex; align-items: center; gap: 10px; }
-        .strat-desc { font-size: 0.9rem; line-height: 1.6; color: #bbb; }
-
-        /* ACTION BUTTON */
         .pooolse-btn {
-            width: 100%; padding: 18px; background: var(--purple); color: #fff; border: none;
-            border-radius: 8px; font-weight: 800; text-transform: uppercase; cursor: pointer;
-            display: flex; justify-content: center; align-items: center; gap: 15px;
-            transition: 0.3s; text-decoration: none; font-family: 'Space Grotesk', sans-serif; letter-spacing: 1px;
+            padding: 15px 40px; background: #fff; color: #000; border: none;
+            border-radius: 50px; font-weight: 800; text-transform: uppercase; cursor: pointer;
+            display: flex; align-items: center; gap: 10px; transition: 0.3s; text-decoration: none;
         }
-        .pooolse-btn:hover { background: #fff; color: #000; box-shadow: 0 0 30px var(--purple-dim); }
+        .pooolse-btn:hover { background: var(--purple); color: #fff; box-shadow: 0 0 30px var(--purple-dim); }
 
-        @keyframes scanDown { 0% { top: 0%; opacity: 0; } 20% { opacity: 1; } 80% { opacity: 1; } 100% { top: 100%; opacity: 0; } }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes pulse { 0% { opacity: 1; text-shadow: 0 0 10px var(--purple); } 50% { opacity: 0.5; text-shadow: 0 0 0 transparent; } 100% { opacity: 1; text-shadow: 0 0 10px var(--purple); } }
     </style>
 </head>
 <body>
 
     <nav>
-        <div class="brand-container">
-            <div class="brand">SkyAI <span>WHALE</span></div>
-            <div class="x-divider">×</div>
-            <div class="pooolse-logo">POOOLSE</div>
+        <div class="brand">
+            SkyAI <span>WHALE</span>
+            <span class="x-tag">×</span>
+            <span class="partner-logo">BlockChainBloom</span>
         </div>
-        <button class="wallet-btn" onclick="connectWallet()">
-            <i class="fas fa-wallet"></i> <span id="wallet-txt">Connect VIP</span>
+        <button class="wallet-btn" id="nav-connect" onclick="unlockVault()">
+            <i class="fas fa-wallet"></i> Connect
         </button>
     </nav>
 
     <div class="container">
         
+        <div class="locked-overlay" id="vault-lock">
+            <i class="fas fa-fingerprint lock-icon"></i>
+            <div class="lock-title">Identity Verification</div>
+            <div class="lock-desc">
+                Ez a terminál kizárólag a SkyAI Whale partnerei számára érhető el.
+                Kérjük, csatlakoztassa tárcáját a jogosultság ellenőrzéséhez.
+            </div>
+            <button class="big-connect-btn" onclick="unlockVault()">
+                <i class="fas fa-link"></i> Connect Wallet
+            </button>
+        </div>
+
         <div class="dashboard-hud" id="hud">
-            <div class="scan-line"></div>
             
             <div class="hud-header">
-                <h2>Strategic Bot Allocator</h2>
-                <p>AI-Driven Portfolio Management for Capital €2000+</p>
-            </div>
-            
-            <div class="capital-selector">
-                <div class="cap-btn" onclick="runAnalysis('CONSERVATIVE')">
-                    Safe Yield
-                    <span>Low Risk</span>
+                <div class="hud-title">
+                    <h2>Portfolio Intelligence</h2>
+                    <p>Institutional Grade Analysis</p>
                 </div>
-                <div class="cap-btn" onclick="runAnalysis('BALANCED')">
-                    Balanced Growth
-                    <span>Mid Risk</span>
-                </div>
-                <div class="cap-btn" onclick="runAnalysis('AGGRESSIVE')">
-                    Alpha Hunter
-                    <span>High Risk</span>
+                <div style="text-align:right;">
+                    <div style="font-size:0.7rem; color:#666;">NET WORTH DETECTED</div>
+                    <div style="font-size:1.5rem; font-weight:700; color:var(--gold); font-family:'Rajdhani'">€ 0.00</div>
                 </div>
             </div>
 
-            <div id="loader" style="display:none; text-align:center; margin:50px 0; color:var(--purple); font-family:'Rajdhani', sans-serif; letter-spacing:2px;">
-                <i class="fas fa-network-wired fa-spin"></i><br><br>
-                ANALYZING MARKET VOLATILITY...<br>
-                OPTIMIZING GRID PARAMETERS...
-            </div>
-
-            <div id="result" class="scan-result">
+            <div class="grid">
                 
-                <div class="metrics-grid">
-                    <div class="metric-box" style="border-left-color: var(--gold);">
-                        <div class="metric-label">Market Cycle</div>
-                        <div class="metric-value text-gold" id="res-cycle">---</div>
+                <div class="strategy-panel">
+                    <div class="stat-card">
+                        <div class="stat-label">AI Javaslat (Nagy Tőke)</div>
+                        <div class="stat-val" style="color:var(--purple)">Smart Rebalance</div>
+                        <div style="font-size:0.85rem; color:#aaa; margin-top:10px; line-height:1.5;">
+                            A jelenlegi piaci volatilitás mellett a SkyAI algoritmus a tőke **40% BTC / 30% ETH / 30% USDT** megosztást javasolja. A Pooolse Rebalance bot automatikusan fenntartja ezt az arányt, realizálva a profitot a kilengésekből.
+                        </div>
                     </div>
-                    <div class="metric-box" style="border-left-color: var(--purple);">
-                        <div class="metric-label">Volatility Index</div>
-                        <div class="metric-value text-purple" id="res-vol">---</div>
-                    </div>
-                    <div class="metric-box" style="border-left-color: #fff;">
-                        <div class="metric-label">Est. Monthly APY</div>
-                        <div class="metric-value" id="res-apy" style="color:#fff">---</div>
+
+                    <div class="stat-card" style="border-left-color: var(--gold);">
+                        <div class="stat-label">SkyAI Market Cycle</div>
+                        <div class="stat-val" style="color:var(--gold)">ACCUMULATION</div>
+                        <div style="font-size:0.85rem; color:#aaa; margin-top:10px;">
+                            Ideális időszak a DCA (Dollárköltség átlagolás) botok indítására. Ne egyben, hanem sávosan lépjen be a piacra.
+                        </div>
                     </div>
                 </div>
 
-                <div class="allocation-container">
-                    <div class="alloc-title">
-                        <span>AI RECOMMENDED ALLOCATION</span>
-                        <span id="alloc-text">Generating...</span>
+                <div class="news-panel">
+                    <div class="news-header">
+                        <img src="https://via.placeholder.com/20/bc13fe?text=B" style="border-radius:50%"> BlockChainBloom Intel
                     </div>
-                    <div class="alloc-bar">
-                        <div class="bar-safe" id="bar-safe"></div>
-                        <div class="bar-growth" id="bar-growth"></div>
+                    <div class="news-item">
+                        <div class="news-date">MA, 10:42</div>
+                        <a href="https://blockchainbloom.com" target="_blank" class="news-title">Az intézményi befektetők rekord mennyiségű BTC-t vontak ki a tőzsdékről.</a>
                     </div>
-                    <div class="alloc-legend">
-                        <div class="legend-item"><div class="dot-purple"></div> Stability Bot (BTC/ETH)</div>
-                        <div class="legend-item"><div class="dot-gold"></div> Growth Bot (SOL/ALT)</div>
+                    <div class="news-item">
+                        <div class="news-date">MA, 08:15</div>
+                        <a href="https://blockchainbloom.com" target="_blank" class="news-title">A BlackRock újabb ETF kérelmet nyújtott be, a piac pozitívan reagált.</a>
                     </div>
-                </div>
-
-                <div class="strategy-card">
-                    <div class="strat-title"><i class="fas fa-chess-king"></i> <span id="strat-name">---</span></div>
-                    <div class="strat-desc" id="strat-desc">
-                        ---
+                    <div class="news-item">
+                        <div class="news-date">TEGNAP</div>
+                        <a href="https://blockchainbloom.com" target="_blank" class="news-title">Technikai Elemzés: A 200 napos mozgóátlag erős támaszként szolgál.</a>
                     </div>
                 </div>
 
-                <a href="https://app.pooolse.com/join/7974" target="_blank" class="pooolse-btn">
-                    <i class="fas fa-cogs"></i> Configure Bots on Pooolse
-                </a>
-
-                <div style="text-align:center; font-size:0.7rem; color:#555; margin-top:20px;">
-                    Institutional Grade Analysis provided by SkyAI & Pooolse
+                <div class="action-area">
+                    <div style="font-size:0.8rem; color:#666;">
+                        <i class="fas fa-lock"></i> SECURE EXECUTION VIA POOOLSE
+                    </div>
+                    <a href="https://app.pooolse.com/join/7974" target="_blank" class="pooolse-btn">
+                        Bot Konfigurálása <i class="fas fa-arrow-right"></i>
+                    </a>
                 </div>
 
             </div>
@@ -256,12 +247,28 @@
     </div>
 
     <script>
-        // MOCK DATA - WHALE LOGIC
-        const strategies = {
-            'CONSERVATIVE': {
-                cycle: 'ACCUMULATION',
-                vol: 'LOW (Stable)',
-                apy: '5-12%',
-                safe: 80, growth: 20,
-                name: 'Capital Preservation Mode',
-                desc: 'A piac
+        function unlockVault() {
+            const lock = document.getElementById('vault-lock');
+            const hud = document.getElementById('hud');
+            const btn = document.getElementById('nav-connect');
+            
+            // Animation
+            document.querySelector('.big-connect-btn').innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Verifying...';
+            
+            setTimeout(() => {
+                lock.style.opacity = '0';
+                setTimeout(() => lock.style.display = 'none', 800);
+                
+                hud.classList.add('unlocked');
+                
+                btn.innerHTML = '0xVIP...88';
+                btn.style.borderColor = '#00ff9d';
+                btn.style.color = '#00ff9d';
+                
+                // Simulate Balance Load
+                document.querySelector('.stat-val').innerText = "Smart Rebalance"; // Reset text
+            }, 1500);
+        }
+    </script>
+</body>
+</html>
