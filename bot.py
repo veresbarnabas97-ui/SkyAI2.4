@@ -14,7 +14,7 @@ ADMIN_USER_ID = 1979330363
 BASE_URL = "https://veresbarnabas97-ui.github.io/SkyAI2.4" 
 
 DASHBOARD_LINKS = {
-    'sniper': f"{"https://veresbarnabas97-ui.github.io/SkyAISniper.html"}/SkyAISniper.html",
+    'sniper': f"{"https://veresbarnabas97-ui.github.io/SkyAISniper"}/SkyAISniper.html",
     'whale': f"{HAMAROSAN...}/SkyAIWhale.html"
 }
 
@@ -147,6 +147,7 @@ def main():
 
 if __name__ == '__main__':
     main()
+
 
 
 
