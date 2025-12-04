@@ -1,63 +1,84 @@
+import logging
 import json
-import time
-import random
-from datetime import datetime
+import os
+import asyncio
+from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
+from telegram.ext import (
+    Application, CommandHandler, CallbackQueryHandler, ContextTypes
+)
 
-# Ha van Binance API-d, ide írd be, és állítsd a TEST_MODE-ot False-ra
-TEST_MODE = False 
+# --- KONFIGURÁCIÓ ---
+TOKEN = '8332155247:AAHmYnKDhllMRHFepYqjZE29Pao3VdMc5UM' 
+
+# !!! ITT A JAVÍTÁS A PONTOS REPO NÉVVEL:
+DASHBOARD_LINK = "https://veresbarnabas97-ui.github.io/SkyAISniper/" 
+# Mivel index.html a neve, elég a mappa linkje!
+
 DATA_FILE = 'data_storage.json'
 
-def generate_market_data():
-    """Generálja a profi elemzést a Bot számára"""
-    
-    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    
-    # Elemzési sablonok, hogy változatos legyen
-    btc_scenarios = [
-        {
-            "trend": "STRONG BULLISH",
-            "level": "Az árfolyam sikeresen áttörte a $95k ellenállást. A MA(50) keresztezte az MA(200)-at (Golden Cross). Következő célár: $98,500. Vételi zóna: $94,800."
-        },
-        {
-            "trend": "NEUTRAL / SIDEWAYS",
-            "level": "Oldalazás a $92k - $94k sávban. Bollinger szalagok beszűkültek. Nagy elmozdulás várható. Javaslat: Várakozás a kitörésre."
-        }
+logging.basicConfig(format='%(asctime)s - SkyAI_SNIPER - %(levelname)s - %(message)s', level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+# --- ADATOLVASÁS ---
+def load_analysis():
+    if not os.path.exists(DATA_FILE): return None
+    try:
+        with open(DATA_FILE, 'r', encoding='utf-8') as f: return json.load(f)
+    except: return None
+
+# --- HANDLEREK ---
+async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    user = update.effective_user
+    text = (
+        f"🎯 **SKYAI SNIPER EGYSÉG**\n"
+        f"Üdvözöllek, {user.first_name}!\n\n"
+        "A rendszer készen áll. A Deep Scanner folyamatosan figyeli a MA(200) és Bollinger szalagokat.\n\n"
+        "🔻 **PARANCSKÖZPONT:**"
+    )
+    keyboard = [
+        [InlineKeyboardButton("📡 Deep Scan Futtatása", callback_data='run_scan')],
+        [InlineKeyboardButton("🖥️ PRIVÁT TERMINÁL MEGNYITÁSA", url=DASHBOARD_LINK)],
+        [InlineKeyboardButton("📘 Stratégia & Oktatás", callback_data='edu_menu')]
     ]
     
-    sol_scenarios = [
-        {
-            "trend": "BULLISH",
-            "level": "Erős vételi volumen érkezett. Az RSI 60-as szinten, még van tér felfelé. Célár: $215."
-        }
-    ]
+    if update.callback_query:
+        await update.callback_query.message.edit_text(text, reply_markup=InlineKeyboardMarkup(keyboard), parse_mode='Markdown')
+    else:
+        await update.message.reply_text(text, reply_markup=InlineKeyboardMarkup(keyboard), parse_mode='Markdown')
 
-    # Kiválasztunk egyet véletlenszerűen (szimuláció)
-    btc_data = random.choice(btc_scenarios)
-    sol_data = random.choice(sol_scenarios)
-
-    data = {
-        "last_analysis_date": timestamp,
-        "analyses": {
-            "BTC/USDC": btc_data,
-            "SOL/USDC": sol_data,
-            "BNB/USDC": {
-                "trend": "BEARISH",
-                "level": "Gyengeség jelei a napi grafikonon. MA(200) alatt vagyunk. Eladási nyomás $650 környékén. Javaslat: Short vagy távolmaradás."
-            }
-        }
-    }
+async def scan_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    await query.answer("🔄 Elemzés folyamatban...")
+    await asyncio.sleep(1) # Kamu töltés effekt
     
-    return data
+    data = load_analysis()
+    if not data:
+        await query.message.reply_text("⚠️ Hiba: Az AI motor (ai_analyzer.py) nem fut a szerveren.")
+        return
 
-def save_data(data):
-    with open(DATA_FILE, 'w', encoding='utf-8') as f:
-        json.dump(data, f, indent=4, ensure_ascii=False)
-    print(f"[AI ENGINE] Elemzés frissítve: {data['last_analysis_date']}")
+    report = f"📡 **SkyAI Deep Scan Jelentés**\n🕒 {data.get('last_analysis_date')}\n\n"
+    for pair, details in data["analyses"].items():
+        icon = "🟢" if "BULLISH" in str(details) else "🔴"
+        report += f"{icon} **{pair}**\n_{details.get('level')}_\n\n"
 
-if __name__ == "__main__":
-    print("SkyAI Deep Scanner Engine Indítása...")
-    while True:
-        analysis = generate_market_data()
-        save_data(analysis)
-        # 1 percet vár a következő frissítésig
-        time.sleep(60)
+    keyboard = [[InlineKeyboardButton("🔙 Vissza", callback_data='start_menu')]]
+    await query.message.edit_text(report, reply_markup=InlineKeyboardMarkup(keyboard), parse_mode='Markdown')
+
+# ... (A többi handler maradhat ugyanaz, mint előbb) ...
+
+async def start_menu_callback(update, context): await start(update, context)
+async def edu_handler(update, context): 
+    # Egyszerűsített edu handler
+    await update.callback_query.answer()
+    await update.callback_query.message.edit_text("📘 **Oktatás:**\nCsak a 90%+ valószínűségű jelekre lépj be. Használd a dashboardot a megerősítéshez.", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 Vissza", callback_data='start_menu')]]), parse_mode='Markdown')
+
+def main():
+    application = Application.builder().token(TOKEN).build()
+    application.add_handler(CommandHandler("start", start))
+    application.add_handler(CallbackQueryHandler(scan_handler, pattern='^run_scan$'))
+    application.add_handler(CallbackQueryHandler(edu_handler, pattern='^edu_menu$'))
+    application.add_handler(CallbackQueryHandler(start_menu_callback, pattern='^start_menu$'))
+    application.run_polling()
+
+if __name__ == '__main__':
+    main()
