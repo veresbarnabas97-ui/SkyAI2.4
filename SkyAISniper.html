@@ -17,7 +17,7 @@
             --text: #ffffff;
             --border: #252530;
         }
-        body { margin: 0; background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; }
+        body { margin: 0; background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; overflow-x: hidden; }
         
         /* Navbar */
         .navbar {
@@ -25,8 +25,8 @@
             display: flex; justify-content: space-between; align-items: center;
             background: rgba(5,5,7,0.95); position: sticky; top:0; z-index: 100;
         }
-        .brand { font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 1.2rem; color: var(--cyan); }
-        .status { font-size: 0.8rem; color: var(--green); border: 1px solid var(--green); padding: 4px 10px; border-radius: 20px; }
+        .brand { font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 1.2rem; color: var(--cyan); text-transform: uppercase; letter-spacing: 2px;}
+        .status { font-size: 0.8rem; color: var(--bg); background: var(--green); padding: 4px 10px; border-radius: 4px; font-weight: bold; }
 
         /* Grid Layout */
         .dashboard {
@@ -38,11 +38,11 @@
             background: var(--panel); border: 1px solid var(--border);
             border-radius: 8px; padding: 20px;
         }
-        .card h3 { margin-top: 0; display: flex; justify-content: space-between; color: var(--text); font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; }
+        .card h3 { margin-top: 0; display: flex; justify-content: space-between; color: var(--text); font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; border-bottom: 1px solid #222; padding-bottom: 10px; margin-bottom: 15px;}
         
         /* Signal Table */
         table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        th { text-align: left; color: #888; font-size: 0.8rem; padding-bottom: 10px; }
+        th { text-align: left; color: #888; font-size: 0.7rem; padding-bottom: 10px; text-transform: uppercase; }
         td { padding: 12px 0; border-bottom: 1px solid #222; font-family: 'JetBrains Mono', monospace; font-size: 0.9rem; }
         .trend-up { color: var(--green); }
         .trend-down { color: var(--red); }
@@ -60,30 +60,37 @@
 
     <nav class="navbar">
         <div class="brand"><i class="fas fa-crosshairs"></i> SkyAI SNIPER</div>
-        <div class="status">● ÉLŐ ADATKAPCSOLAT</div>
+        <div class="status">● ONLINE</div>
     </nav>
 
     <div class="dashboard">
         <div class="main-charts">
             <div class="card" style="margin-bottom: 20px;">
-                <h3><i class="fab fa-bitcoin"></i> Bitcoin / USDC <span style="color:var(--cyan)">AI CONFIDENCE: 92%</span></h3>
-                <div class="tradingview-widget-container" id="tv-btc" style="height: 400px;"></div>
+                <h3>
+                    <span><i class="fab fa-bitcoin"></i> Bitcoin / USDC</span>
+                    <span style="color:var(--cyan); font-family:'JetBrains Mono'">AI CONF: 92%</span>
+                </h3>
+                <div class="tradingview-widget-container" id="tv-btc" style="height: 450px;"></div>
             </div>
             
             <div class="card">
-                <h3><i class="fas fa-layer-group"></i> Solana / USDC <span style="color:var(--cyan)">AI CONFIDENCE: 88%</span></h3>
-                <div class="tradingview-widget-container" id="tv-sol" style="height: 400px;"></div>
+                <h3>
+                    <span><i class="fas fa-layer-group"></i> Solana / USDC</span>
+                    <span style="color:var(--cyan); font-family:'JetBrains Mono'">AI CONF: 88%</span>
+                </h3>
+                <div class="tradingview-widget-container" id="tv-sol" style="height: 450px;"></div>
             </div>
         </div>
 
         <div class="sidebar">
             <div class="card">
                 <h3><i class="fas fa-robot"></i> Deep Scanner Log</h3>
-                <div style="font-family: 'JetBrains Mono'; font-size: 0.8rem; color: #aaa; margin-bottom: 20px; line-height: 1.6;">
-                    > Rendszer inicializálva...<br>
-                    > MA(200) trend vizsgálata: <span style="color:var(--green)">BULLISH</span><br>
-                    > Volatilitás: ALACSONY (Squeeze)<br>
-                    > <span style="color:var(--cyan)">Kitörés várható 4-12 órán belül.</span>
+                <div style="font-family: 'JetBrains Mono'; font-size: 0.75rem; color: #aaa; margin-bottom: 20px; line-height: 1.6; background: #000; padding: 10px; border-radius: 4px; border: 1px solid #333;">
+                    > Initializing SkyAI Core v2.4...<br>
+                    > Connecting to Binance API... <span style="color:var(--green)">OK</span><br>
+                    > Analyzing Volatility (BB)... <span style="color:var(--green)">LOW</span><br>
+                    > Trend Check (MA200)... <span style="color:var(--green)">BULLISH</span><br>
+                    > <span style="color:var(--cyan)">Várakozás kitörési zónára.</span>
                 </div>
 
                 <table>
@@ -117,9 +124,30 @@
                     </tbody>
                 </table>
                 
-                <div style="margin-top: 20px; padding: 10px; background: rgba(0,255,157,0.1); border: 1px solid var(--green); border-radius: 4px; font-size: 0.8rem; color: var(--green);">
-                    <i class="fas fa-check-circle"></i> <strong>TIPP:</strong> A BTC MA(50) átlépte az MA(200)-at. Golden Cross megerősítve. Tartsd a pozíciókat!
+                <div style="margin-top: 20px; padding: 15px; background: rgba(0,255,157,0.05); border: 1px solid var(--green); border-radius: 4px;">
+                    <h4 style="margin:0 0 10px 0; color:var(--green); font-size:0.9rem;">💡 Stratégiai Javaslat</h4>
+                    <p style="font-size: 0.8rem; color: #ccc; margin:0; line-height: 1.5;">
+                        A BTC MA(50) átlépte az MA(200)-at (Golden Cross). Ez intézményi vételi erőt jelez. Tartsd a pozíciókat a $98k-s szintig.
+                    </p>
                 </div>
+            </div>
+
+            <div class="card" style="margin-top: 20px;">
+                <h3><i class="fas fa-user-secret"></i> Whale Activity</h3>
+                <ul style="list-style: none; padding: 0; font-size: 0.85rem; color: #bbb;">
+                    <li style="margin-bottom: 10px; display:flex; justify-content:space-between;">
+                        <span>2 perce</span>
+                        <span style="color:var(--green)">+150 BTC (Binance)</span>
+                    </li>
+                    <li style="margin-bottom: 10px; display:flex; justify-content:space-between;">
+                        <span>12 perce</span>
+                        <span style="color:var(--red)">-2,000 SOL (Coinbase)</span>
+                    </li>
+                    <li style="display:flex; justify-content:space-between;">
+                        <span>45 perce</span>
+                        <span style="color:var(--green)">+450 ETH (OKX)</span>
+                    </li>
+                </ul>
             </div>
         </div>
     </div>
