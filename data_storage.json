@@ -1,23 +1,17 @@
 {
-  "last_analysis_date": "RENDSZER INDÍTÁS...",
-  "analyses": {
-    "BTC/USDC": {
-      "trend": "INITIALIZING...",
-      "level": "A SkyAI Spot Algoritmus épp tölti a piaci adatokat. Kérjük, térj vissza a következő frissítési ciklusban.",
-      "prob": 0,
-      "current_price": "Betöltés..."
-    },
-    "BNB/USDC": {
-      "trend": "INITIALIZING...",
-      "level": "A SkyAI Spot Algoritmus épp tölti a piaci adatokat. Kérjük, térj vissza a következő frissítési ciklusban.",
-      "prob": 0,
-      "current_price": "Betöltés..."
-    },
-    "SOL/USDC": {
-      "trend": "INITIALIZING...",
-      "level": "A SkyAI Spot Algoritmus épp tölti a piaci adatokat. Kérjük, térj vissza a következő frissítési ciklusban.",
-      "prob": 0,
-      "current_price": "Betöltés..."
+    "last_analysis_date": "2025-12-04 12:45:54",
+    "analyses": {
+        "BTC/USDC": {
+            "trend": "STRONG BULLISH",
+            "level": "Az árfolyam sikeresen áttörte a $95k ellenállást. A MA(50) keresztezte az MA(200)-at (Golden Cross). Következő célár: $98,500. Vételi zóna: $94,800."
+        },
+        "SOL/USDC": {
+            "trend": "BULLISH",
+            "level": "Erős vételi volumen érkezett. Az RSI 60-as szinten, még van tér felfelé. Célár: $215."
+        },
+        "BNB/USDC": {
+            "trend": "BEARISH",
+            "level": "Gyengeség jelei a napi grafikonon. MA(200) alatt vagyunk. Eladási nyomás $650 környékén. Javaslat: Short vagy távolmaradás."
+        }
     }
-  }
 }
