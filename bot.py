@@ -14,14 +14,14 @@ ADMIN_USER_ID = 1979330363
 BASE_URL = "https://veresbarnabas97-ui.github.io/SkyAI2.4" 
 
 DASHBOARD_LINKS = {
-    'sniper': f"{"https://veresbarnabas97-ui.github.io/SkyAI2.4/SkyAISniper.html"}/SkyAISniper.html",
-    'whale': f"{BASE_URL}/SkyAIWhale.html"
+    'sniper': f"{"https://veresbarnabas97-ui.github.io/SkyAISniper.html"}/SkyAISniper.html",
+    'whale': f"{HAMAROSAN...}/SkyAIWhale.html"
 }
 
 # TITKOS CSOPORT LINKEK
 BOT_LINKS = {
     'sniper': 'https://t.me/SkyAISniper_Bot',
-    'whale': 'https://t.me/SkyAIWhale_Bot'
+    'whale': 'https://t.me/SkyAiWhale_Bot'
 }
 
 PAYMENT_INFO = {
@@ -147,5 +147,6 @@ def main():
 
 if __name__ == '__main__':
     main()
+
 
 
