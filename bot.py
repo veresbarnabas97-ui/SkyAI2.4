@@ -11,8 +11,7 @@ TELEGRAM_BOT_TOKEN = '8486431467:AAEMJ87kuhbwzYl529ypndfD7LsrQ52Ekx4'
 ADMIN_USER_ID = 1979330363 
 
 # WEB DASHBOARD URL-ek (GitHub Pages elérések)
-# FIGYELEM: Cseréld le a 'veresbarnabas97-ui.github.io/SkyAI' részt a pontos elérési utadra!
-BASE_URL = "https://veresbarnabas97-ui.github.io/SkyAI" 
+BASE_URL = "https://veresbarnabas97-ui.github.io/SkyAI2.4" 
 
 DASHBOARD_LINKS = {
     'sniper': f"{BASE_URL}/SkyAISniper.html",
@@ -148,3 +147,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+
