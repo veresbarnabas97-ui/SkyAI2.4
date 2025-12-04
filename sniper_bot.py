@@ -1,128 +1,136 @@
 import logging
+import json
+import os
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import (
     Application, CommandHandler, CallbackQueryHandler, ContextTypes
 )
 
 # --- KONFIGURÁCIÓ ---
-# SkyAISniper_Bot Token (Amit megadtál)
-TOKEN = '8332155247:AAHmYnKDhllMRHFepYqjZE29Pao3VdMc5UM'
-
-# A te GitHub Pages linked a Sniper Dashboardhoz
+TOKEN = '8332155247:AAHmYnKDhllMRHFepYqjZE29Pao3VdMc5UM' # A te Tokened
 DASHBOARD_LINK = "https://veresbarnabas97-ui.github.io/SkyAI/SkyAISniper.html" 
 POOOLSE_LINK = "https://app.pooolse.com/join/7974"
+DATA_FILE = 'data_storage.json'
 
-# Logging
+# Logging beállítása
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     level=logging.INFO
 )
 logger = logging.getLogger(__name__)
 
-# --- MENÜK ÉS ÜZENETEK ---
+# --- SEGÉDFÜGGVÉNYEK ---
+
+def load_analysis():
+    """Betölti a legfrissebb elemzést a JSON fájlból."""
+    if not os.path.exists(DATA_FILE):
+        return None
+    try:
+        with open(DATA_FILE, 'r', encoding='utf-8') as f:
+            return json.load(f)
+    except Exception as e:
+        logger.error(f"Hiba a JSON olvasásakor: {e}")
+        return None
+
+# --- COMMAND HANDLERS ---
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Főmenü és Üdvözlés"""
+    """Főmenü"""
     user = update.effective_user
-    
     text = (
-        f"🎯 **Üdvözöllek a SkyAI Sniper Egységben, {user.first_name}!**\n\n"
-        "Ez a bot a te személyes stratégiai központod. Itt nem csak jeleket kapsz, hanem megtanulod, hogyan használd a **Deep Scanner** technológiát a tőkéd növelésére.\n\n"
-        "📉 **Fókusz:** SPOT kereskedés\n"
-        "⚡ **Stílus:** Agilis, Precíz, Biztonságos\n\n"
-        "Miben segíthetek ma?"
+        f"🎯 **SkyAI Sniper Egység - Online**\n"
+        f"Üdvözöllek, {user.first_name}!\n\n"
+        "A rendszer készen áll a Spot kereskedési jelek közvetítésére.\n"
+        "A Deep Scanner folyamatosan figyeli a MA(200) és Bollinger szalagokat.\n\n"
+        "Válassz parancsot:"
     )
-
     keyboard = [
-        [InlineKeyboardButton("🖥️ Webes Terminál (Élő Scanner)", url=DASHBOARD_LINK)],
-        [InlineKeyboardButton("📘 Mi az a Deep Scanner?", callback_data='edu_deepscan')],
-        [InlineKeyboardButton("💰 Stratégia Kistőkével", callback_data='strat_lowcap')],
-        [InlineKeyboardButton("🤖 Pooolse Bot Ajánló", callback_data='pooolse_info')],
-        [InlineKeyboardButton("🆘 Kapcsolat", url="https://t.me/VeresBarnabas1")]
+        [InlineKeyboardButton("📡 Deep Scan Indítása (Elemzés)", callback_data='run_scan')],
+        [InlineKeyboardButton("🖥️ Webes Dashboard", url=DASHBOARD_LINK)],
+        [InlineKeyboardButton("📘 Oktatóanyagok", callback_data='edu_menu')],
+        [InlineKeyboardButton("🤖 Pooolse Automatizálás", callback_data='pooolse_info')]
     ]
-    
     if update.callback_query:
         await update.callback_query.message.edit_text(text, reply_markup=InlineKeyboardMarkup(keyboard), parse_mode='Markdown')
     else:
         await update.message.reply_text(text, reply_markup=InlineKeyboardMarkup(keyboard), parse_mode='Markdown')
 
-async def education_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Deep Scanner Oktató Anyag"""
+async def scan_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Kiolvassa az elemzést és elküldi"""
     query = update.callback_query
-    await query.answer()
+    await query.answer("Deep Scanner futtatása...")
     
-    text = (
-        "📘 **A SkyAI Deep Scanner Technológiája**\n\n"
-        "A legtöbb kezdő ott rontja el, hogy csak az árat nézi. A Deep Scanner a piac **mélységét** vizsgálja.\n\n"
-        "🔍 **Mit figyelünk valós időben?**\n"
-        "1. **MA(200) - A Bálna Vonal:** Ha az árfolyam ez alatt van, TILOS a Spot vétel. Ez a mi védelmi pajzsunk a medvepiac ellen.\n"
-        "2. **MA(25) & MA(75):** A rövid távú trendek keresztezései. Itt lépünk be (Sniper Entry).\n"
-        "3. **Bollinger Szalagok:** Amikor a szalagok 'összenyomódnak' (Squeeze), az vihar előtti csendet jelent. Ilyenkor készülünk a robbanásra.\n\n"
-        "💡 *A Webes Terminálon ezeket az adatokat látod másodperc alapú frissítéssel.*"
-    )
+    data = load_analysis()
     
-    keyboard = [[InlineKeyboardButton("🔙 Vissza a Menübe", callback_data='start_menu')]]
-    await query.message.edit_text(text, reply_markup=InlineKeyboardMarkup(keyboard), parse_mode='Markdown')
+    if not data or "analyses" not in data:
+        await query.message.reply_text("⚠️ **Nincs elérhető friss elemzés.**\nKérlek, futtasd a háttérben az 'ai_analyzer.py'-t az adatok generálásához!")
+        return
 
-async def strategy_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Kistőkés Stratégia Tervező"""
+    # Elemzések formázása
+    report = f"📡 **SkyAI Deep Scan Jelentés**\n📅 Dátum: {data.get('last_analysis_date', 'N/A')}\n\n"
+    
+    for pair, details in data["analyses"].items():
+        trend_icon = "🟢" if "BULLISH" in str(details) or "Vétel" in str(details) else "🔴"
+        report += f"{trend_icon} **{pair}**\nOutput: {details.get('level', 'N/A')}\n\n"
+
+    keyboard = [[InlineKeyboardButton("🔙 Vissza", callback_data='start_menu')]]
+    await query.message.edit_text(report, reply_markup=InlineKeyboardMarkup(keyboard), parse_mode='Markdown')
+
+async def edu_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Oktató menü"""
     query = update.callback_query
     await query.answer()
-    
-    text = (
-        "💰 **Sniper Stratégia: Építkezés Kistőkével ($100 - $1000)**\n\n"
-        "Nem kell milliókkal kezdened. A titok a **Kamatos Kamat** és a **Fegyelem**.\n\n"
-        "📋 **A Terv:**\n"
-        "1. **Ne kapkodj:** Csak akkor lépj, ha a Deep Scanner 90%+ valószínűséget jelez (Zöld zóna).\n"
-        "2. **DCA (Dollar Cost Averaging):** Ha van rá lehetőséged, heti/havi szinten utalj be kisebb összeget (pl. $20-$50). Ez kisimítja a beszállóidat.\n"
-        "3. **Take Profit:** Ne legyél mohó. Ha megvan a 3-5% profit egy Spot pozíción, zárd le, vagy húzd fel a Stop-Loss-t.\n\n"
-        "🚀 *Cél: A tőke megduplázása biztonságos lépésekkel, nem szerencsejátékkal.*"
-    )
-    
+    text = "📘 **Tudásbázis**\nVálassz témát:"
     keyboard = [
-        [InlineKeyboardButton("Hogyan automatizáljam? (Pooolse)", callback_data='pooolse_info')],
-        [InlineKeyboardButton("🔙 Vissza", callback_data='start_menu')]
+        [InlineKeyboardButton("🔍 Mi az a Deep Scanner?", callback_data='edu_deepscan')],
+        [InlineKeyboardButton("💰 Kistőkés Stratégia", callback_data='strat_lowcap')],
+        [InlineKeyboardButton("🔙 Főmenü", callback_data='start_menu')]
     ]
     await query.message.edit_text(text, reply_markup=InlineKeyboardMarkup(keyboard), parse_mode='Markdown')
 
-async def pooolse_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Pooolse Integráció és Bot Ajánló"""
+async def content_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Egyedi tartalmak megjelenítése"""
     query = update.callback_query
     await query.answer()
+    data = query.data
     
-    text = (
-        "🤖 **SkyAI x Pooolse: Automatizált Profit**\n\n"
-        "A SkyAI megadja a jelet, a Pooolse pedig végrehajtja. Ez a tökéletes párosítás, ha nincs időd a gép előtt ülni.\n\n"
-        "🛠️ **Ajánlott Botok Sniper Tagoknak:**\n"
-        "🔹 **Spot Grid Bot:** Oldalazó piacon (amikor a Scanner 'Neutral'-t jelez). Kicsi, de biztos profitot termel a hullámzásokból.\n"
-        "🔹 **Infinity Grid:** Ha a Scanner 'LONG (Breakout)'-ot jelez. Ez követi az emelkedő trendet a végtelenségig.\n\n"
-        "👇 **Indítsd el a saját botodat itt:**"
-    )
-    
-    keyboard = [
-        [InlineKeyboardButton("🚀 Pooolse Fiók Létrehozása / Belépés", url=POOOLSE_LINK)],
-        [InlineKeyboardButton("🔙 Vissza a Menübe", callback_data='start_menu')]
-    ]
+    text = ""
+    if data == 'edu_deepscan':
+        text = (
+            "🔍 **Deep Scanner Működése**\n\n"
+            "Ez az algoritmus nem 'jósol', hanem mér.\n"
+            "1. **MA(200):** Ha az ár ez alatt van, csak Short jeleket keresünk.\n"
+            "2. **Squeeze:** Ha a Bollinger szalagok beszűkülnek, a volatilitás robbanása várható.\n"
+        )
+    elif data == 'strat_lowcap':
+        text = (
+            "💰 **Kistőkés Stratégia ($100-$1000)**\n\n"
+            "1. **Türelem:** Csak a 90%+ valószínűségű jelekre lépj be.\n"
+            "2. **Compound:** A profitot ne vedd ki, hanem forgasd vissza.\n"
+            "3. **Eszközök:** Koncentrálj a top coinokra (SOL, BNB), kerüld a shitcoinokat."
+        )
+    elif data == 'pooolse_info':
+        text = (
+            "🤖 **Pooolse Integráció**\n\n"
+            "Kösd össze a SkyAI jeleit a Pooolse botokkal.\n"
+            "Ajánlott: **Spot Grid Bot** oldalazó piacon."
+        )
+
+    keyboard = [[InlineKeyboardButton("🔙 Vissza", callback_data='start_menu')]]
     await query.message.edit_text(text, reply_markup=InlineKeyboardMarkup(keyboard), parse_mode='Markdown')
 
 async def start_menu_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Visszatérés a főmenübe (Gombnyomásra)"""
     await start(update, context)
 
 # --- MAIN ---
-
 def main():
-    print("SkyAI Sniper Bot (Mentor Modul) Indítása...")
+    print("SkyAI Sniper Bot Indítása...")
     application = Application.builder().token(TOKEN).build()
 
-    # Handlerek
     application.add_handler(CommandHandler("start", start))
-    application.add_handler(CommandHandler("help", lambda u,c: u.message.reply_text("Itt vagyok! Kattints a /start -ra a menü megnyitásához.")))
-    
-    # Callback Handlerek
-    application.add_handler(CallbackQueryHandler(education_handler, pattern='^edu_deepscan$'))
-    application.add_handler(CallbackQueryHandler(strategy_handler, pattern='^strat_lowcap$'))
-    application.add_handler(CallbackQueryHandler(pooolse_handler, pattern='^pooolse_info$'))
+    application.add_handler(CallbackQueryHandler(scan_handler, pattern='^run_scan$'))
+    application.add_handler(CallbackQueryHandler(edu_handler, pattern='^edu_menu$'))
+    application.add_handler(CallbackQueryHandler(content_handler, pattern='^(edu_deepscan|strat_lowcap|pooolse_info)$'))
     application.add_handler(CallbackQueryHandler(start_menu_callback, pattern='^start_menu$'))
 
     application.run_polling()
