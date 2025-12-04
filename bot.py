@@ -7,18 +7,19 @@ from telegram.ext import (
 )
 
 # --- KONFIGURÁCIÓ ---
-TELEGRAM_BOT_TOKEN = '8486431467:AAEMJ87kuhbwzYl529ypndfD7LsrQ52Ekx4' # SkyAI_ProBot
+TELEGRAM_BOT_TOKEN = '8486431467:AAEMJ87kuhbwzYl529ypndfD7LsrQ52Ekx4' 
 ADMIN_USER_ID = 1979330363 
 
-# WEB DASHBOARD URL-ek (A te GitHub Pages címed)
-BASE_URL = "https://veresbarnabas97-ui.github.io/SkyAI2.4" 
+# WEB DASHBOARD URL-ek (GitHub Pages elérések)
+# FIGYELEM: Cseréld le a 'veresbarnabas97-ui.github.io/SkyAI' részt a pontos elérési utadra!
+BASE_URL = "https://veresbarnabas97-ui.github.io/SkyAI" 
 
 DASHBOARD_LINKS = {
     'sniper': f"{BASE_URL}/SkyAISniper.html",
     'whale': f"{BASE_URL}/SkyAIWhale.html"
 }
 
-# TITKOS BOTOK LINKJEI
+# TITKOS CSOPORT LINKEK
 BOT_LINKS = {
     'sniper': 'https://t.me/SkyAISniper_Bot',
     'whale': 'https://t.me/SkyAIWhale_Bot'
@@ -35,7 +36,7 @@ DB_NAME = 'skyai_users.db'
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# --- ADATBÁZIS ---
+# --- ADATBÁZIS (Ugyanaz maradt, csak röviden) ---
 def init_db():
     conn = sqlite3.connect(DB_NAME)
     cursor = conn.cursor()
@@ -67,21 +68,16 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     register_user(user)
     
     text = (
-        f"🌌 **Üdvözöllek a SkyAI Parancsnoki Központban, {user.first_name}!**\n\n"
-        "Ez a rendszer a **SkyAI SPOT Algoritmusok** és a **Pooolse** ökoszisztéma hivatalos belépési pontja.\n\n"
-        "🤖 **Mit kínálunk?**\n"
-        "Nem egyszerű szignálokat, hanem komplett **Web3 Kereskedési Terminált**.\n"
-        "A fizetés után azonnali hozzáférést kapsz a privát, reklámmentes Dashboardhoz, ahol az AI valós időben elemzi a piacot.\n\n"
-        "🔻 **Válassz Hozzáférést:**"
+        f"🌌 **Üdvözöllek a SkyAI 2.4 Központban!**\n\n"
+        "Ez a rendszer a **SPOT AI Botok** és a **Pooolse** ökoszisztéma belépési pontja.\n"
+        "Itt aktiválhatod a hozzáférésedet a privát Dashboardokhoz és az AI szignálokhoz.\n\n"
+        "🔻 **Válassz Csomagot:**"
     )
-
     keyboard = [
         [InlineKeyboardButton("🎯 SkyAI Sniper (Spot) - 15k Ft", callback_data='info_sniper')],
         [InlineKeyboardButton("🐋 SkyAI Whale (VIP) - 45k Ft", callback_data='info_whale')],
-        [InlineKeyboardButton("⚡ Pooolse Integráció (Info)", url="https://pooolse.com")],
         [InlineKeyboardButton("🆘 Ügyfélszolgálat", url="https://t.me/VeresBarnabas1")]
     ]
-    
     if update.callback_query:
         await update.callback_query.message.edit_text(text, reply_markup=InlineKeyboardMarkup(keyboard), parse_mode='Markdown')
     else:
@@ -90,12 +86,10 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def info_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     await query.answer()
-    tier = query.data.split('_')[1] 
-    
-    tier_name = "SNIPER" if tier == 'sniper' else "WHALE VIP"
+    tier = query.data.split('_')[1] # 'sniper' vagy 'whale'
     
     text = (
-        f"💎 **SkyAI {tier_name} SPOT CSOMAG**\n\n"
+        f"💎 **SkyAI {tier.upper()} SPOT CSOMAG**\n\n"
         "Az előfizetés tartalma:\n"
         "1. **Privát Webes Dashboard** (Grafikonok + AI)\n"
         "2. **Titkos Telegram Bot** (Azonnali értesítések)\n"
@@ -112,7 +106,7 @@ async def info_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     ]
     await query.message.edit_text(text, reply_markup=InlineKeyboardMarkup(keyboard), parse_mode='Markdown')
 
-# --- ADMIN JÓVÁHAGYÁS ---
+# --- ADMIN JÓVÁHAGYÁS ÉS TERMÉK ÁTADÁS ---
 async def approve_user(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user = update.effective_user
     if user.id != ADMIN_USER_ID: return
@@ -124,14 +118,15 @@ async def approve_user(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
         expiry = update_tier(target_id, tier)
         
+        # LINK GENERÁLÁS
         web_dashboard = DASHBOARD_LINKS[tier]
         telegram_bot = BOT_LINKS[tier]
 
         msg = (
             f"✅ **FIZETÉS ELFOGADVA!**\n"
             f"Köszönjük a bizalmat. A SkyAI {tier.upper()} csomagod aktív.\n\n"
-            "📦 **Itt vannak a titkos hozzáféréseid:**\n\n"
-            f"🖥️ **1. Privát Webes Dashboard (Mentsd el!):**\n{web_dashboard}\n\n"
+            "📦 **Itt vannak a hozzáféréseid:**\n\n"
+            f"🖥️ **1. Privát Webes Dashboard (Mentse el!):**\n{web_dashboard}\n\n"
             f"🤖 **2. Titkos Értesítő Bot:**\n{telegram_bot}\n\n"
             "Jó kereskedést kíván a SkyAI & Pooolse csapata!"
         )
@@ -149,9 +144,7 @@ def main():
     application.add_handler(CommandHandler("approve", approve_user))
     application.add_handler(CallbackQueryHandler(info_handler, pattern='^info_'))
     application.add_handler(CallbackQueryHandler(start, pattern='^start$'))
-    print("SkyAI Gatekeeper ProBot Indul...")
     application.run_polling()
 
 if __name__ == '__main__':
     main()
-
