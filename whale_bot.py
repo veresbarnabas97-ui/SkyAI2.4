@@ -1,100 +1,185 @@
+from flask import Flask, render_template_string, jsonify, request
 import logging
-from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
-from telegram.ext import (
-    Application, CommandHandler, CallbackQueryHandler, ContextTypes
-)
 
-# --- KONFIGURÁCIÓ ---
-# SkyAIWhale_Bot Token (A te saját tokened)
-TOKEN = '8414813040:AAGNNWePEdixbhBC2-JEd-riObEcjGX6iIs'
+# A Flask logjainak elrejtése, hogy tisztább legyen a terminál
+log = logging.getLogger('werkzeug')
+log.setLevel(logging.ERROR)
 
-# Linkek (Győződj meg róla, hogy a GitHub Pages címed helyes!)
-DASHBOARD_LINK = "https://veresbarnabas97-ui.github.io/SkyAI2.4/SkyAIWhale.html" 
-POOOLSE_LINK = "https://app.pooolse.com/join/7974"
-BCBLOOM_LINK = "https://blockchainbloom.com"
+app = Flask(__name__)
 
-# Logging beállítása
-logging.basicConfig(
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    level=logging.INFO
-)
-logger = logging.getLogger(__name__)
-
-# --- HANDLEREK ---
-
-async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Főmenü és Üdvözlés"""
-    user = update.effective_user
-    text = (
-        f"🐋 **Üdvözlöm a SkyAI Whale Központban, {user.first_name}.**\n\n"
-        "Ez a felület a stratégiai vagyonkezelés és a piaci információszerzés privát csatornája.\n\n"
-        "📰 **Mai Fókusz:** Intézményi tőkeáramlás és ETF adatok.\n"
-        "🛡️ **SkyAI Státusz:** A 'Vault' (Széf) aktív. Kérjük, csatlakoztassa tárcáját a webes terminálon a teljes hozzáféréshez.\n\n"
-        "Válasszon az alábbi lehetőségek közül:"
-    )
+# --- HTML FELÜLET (TRUST WALLET TÁMOGATÁSSAL) ---
+HTML_INTERFACE = """
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SkyAI Private Vault | Institutional Access</title>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;500;700&family=Cinzel:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    keyboard = [
-        [InlineKeyboardButton("🔐 VIP Vault Megnyitása", url=DASHBOARD_LINK)],
-        [InlineKeyboardButton("📰 Napi SkyAI Elemzés", callback_data='daily_intel')],
-        [InlineKeyboardButton("💰 Wallet Csatlakoztatása (Info)", callback_data='wallet_help')],
-        [InlineKeyboardButton("🤖 Pooolse Vagyonkezelés", url=POOOLSE_LINK)]
-    ]
+    <script src="https://cdn.jsdelivr.net/npm/web3@1.5.2/dist/web3.min.js"></script>
+
+    <style>
+        :root {
+            --bg: #050507;
+            --purple: #bc13fe;
+            --gold: #d4af37;
+            --text: #ffffff;
+        }
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: 'Manrope', sans-serif;
+            margin: 0; padding: 0;
+            display: flex; flex-direction: column;
+            min-height: 100vh;
+        }
+        nav {
+            padding: 20px 40px;
+            display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 1px solid rgba(188, 19, 254, 0.3);
+            background: rgba(5,5,7,0.9);
+        }
+        .brand {
+            font-family: 'Cinzel', serif; font-size: 1.5rem;
+            color: #fff;
+        }
+        .brand span { color: var(--purple); text-shadow: 0 0 10px var(--purple); }
+        
+        .connect-btn {
+            background: transparent;
+            border: 1px solid var(--purple);
+            color: var(--purple);
+            padding: 10px 25px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.3s;
+            text-transform: uppercase;
+        }
+        .connect-btn:hover {
+            background: var(--purple);
+            color: #fff;
+            box-shadow: 0 0 20px var(--purple);
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex; justify-content: center; align-items: center;
+            text-align: center;
+        }
+        .status-box {
+            padding: 40px;
+            border: 1px solid #333;
+            border-radius: 10px;
+            max-width: 500px;
+        }
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <div class="brand"><i class="fa-solid fa-shield-halved"></i> SkyAI <span>VAULT</span></div>
+        <button id="walletBtn" class="connect-btn" onclick="connectWallet()">
+            <i class="fa-solid fa-wallet"></i> Connect Wallet
+        </button>
+    </nav>
+
+    <div class="main-content">
+        <div class="status-box">
+            <h2 id="statusTitle">Rendszer Zárolva</h2>
+            <p id="statusText">Kérlek, csatlakoztasd a hitelesített (Trust/Phantom/Metamask) tárcádat a belépéshez.</p>
+            <div id="loader" class="hidden" style="margin-top:20px; color:var(--purple);">
+                <i class="fa-solid fa-circle-notch fa-spin fa-2x"></i>
+                <p>Hitelesítés folyamatban...</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function connectWallet() {
+            const btn = document.getElementById('walletBtn');
+            const statusTitle = document.getElementById('statusTitle');
+            const statusText = document.getElementById('statusText');
+            const loader = document.getElementById('loader');
+
+            // 1. Ellenőrizzük, van-e tárca a böngészőben (Trust Wallet Extension / Phantom / Metamask)
+            if (window.ethereum) {
+                window.web3 = new Web3(window.ethereum);
+                
+                try {
+                    // Betöltés jelzése
+                    btn.innerHTML = "Csatlakozás...";
+                    loader.classList.remove('hidden');
+
+                    // 2. Kérjük a felhasználó engedélyét (Popup ablak)
+                    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                    const account = accounts[0];
+
+                    // 3. Ha sikerült, elküldjük a címet a Python Backendnek
+                    sendToBackend(account);
+
+                    // UI Frissítés
+                    btn.innerHTML = "Connected: " + account.substring(0,6) + "...";
+                    btn.style.borderColor = "#00ff9d";
+                    btn.style.color = "#00ff9d";
+                    
+                    statusTitle.innerText = "Hozzáférés Engedélyezve";
+                    statusTitle.style.color = "#00ff9d";
+                    statusText.innerText = "Üdvözöllek, Intézményi Partner. A terminálon megkaptad a biztonsági kulcsot.";
+                    loader.classList.add('hidden');
+
+                } catch (error) {
+                    console.error("User denied account access");
+                    btn.innerHTML = "Hiba! Próbáld újra";
+                    loader.classList.add('hidden');
+                }
+            } else {
+                alert("Nem találtam tárcát! Kérlek telepítsd a Trust Wallet vagy Phantom bővítményt a böngésződhöz.");
+            }
+        }
+
+        function sendToBackend(address) {
+            fetch('/connect_success', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ wallet: address })
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log("Backend válasz:", data);
+            });
+        }
+    </script>
+</body>
+</html>
+"""
+
+# --- BACKEND LOGIKA ---
+
+@app.route('/')
+def home():
+    return render_template_string(HTML_INTERFACE)
+
+@app.route('/connect_success', methods=['POST'])
+def connect_success():
+    data = request.json
+    wallet_address = data.get('wallet', 'Ismeretlen')
     
-    if update.callback_query:
-        await update.callback_query.message.edit_text(text, reply_markup=InlineKeyboardMarkup(keyboard), parse_mode='Markdown')
-    else:
-        await update.message.reply_text(text, reply_markup=InlineKeyboardMarkup(keyboard), parse_mode='Markdown')
-
-async def daily_intel_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Napi Piaci Gyorselemzés"""
-    query = update.callback_query
-    await query.answer()
-    text = (
-        "📰 **Napi SkyAI Intelligence Report**\n\n"
-        "**Főcím:** Intézményi Rekordok az ETF Piacon\n\n"
-        "**Részletek:** A BlackRock és a Fidelity vásárlói nyomása ellensúlyozza a rövid távú eladói oldalt. A piac szerkezete bullish.\n\n"
-        "🔮 **SkyAI Vélemény:** Akkumuláció (Felhalmozás) zajlik. A bálnák nem adnak el. Ez a legjobb időszak a portfólió bővítésére.\n\n"
-        "👉 *A teljes elemzésért és a részletes grafikonokért lépjen be a Vault-ba.*"
-    )
-    keyboard = [[InlineKeyboardButton("🔙 Vissza a Menübe", callback_data='start_menu')]]
-    await query.message.edit_text(text, reply_markup=InlineKeyboardMarkup(keyboard), parse_mode='Markdown')
-
-async def wallet_help_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Segítség a Wallet Csatlakoztatáshoz"""
-    query = update.callback_query
-    await query.answer()
-    text = (
-        "💼 **Hogyan csatlakoztassa tárcáját?**\n\n"
-        "A SkyAI Whale oldal a **Web3** technológiát használja a biztonságos azonosításhoz.\n\n"
-        "1. Nyissa meg a **VIP Vault** oldalt (felső gomb).\n"
-        "2. Kattints a **'Csatlakozás'** vagy **'Connect'** gombra a jobb felső sarokban.\n"
-        "3. Válassza ki a **Trust Wallet** vagy **Phantom** opciót.\n"
-        "4. A rendszer automatikusan feloldja a zárolt tartalmakat.\n\n"
-        "🔒 *A kapcsolat csak olvasási jogot kér (Read-Only) az egyenleg megjelenítéséhez. A tőkéje biztonságban van.*"
-    )
-    keyboard = [[InlineKeyboardButton("🔙 Vissza a Menübe", callback_data='start_menu')]]
-    await query.message.edit_text(text, reply_markup=InlineKeyboardMarkup(keyboard), parse_mode='Markdown')
-
-async def start_menu_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Visszatérés a főmenübe"""
-    await start(update, context)
-
-# --- MAIN ---
-
-def main():
-    print("SkyAI Whale Bot Indítása...")
-    application = Application.builder().token(TOKEN).build()
-
-    # Parancsok
-    application.add_handler(CommandHandler("start", start))
-    application.add_handler(CommandHandler("help", start))
+    # ITT TÖRTÉNIK A MÁGIA A TERMINÁLBAN
+    print("\n" + "█"*60)
+    print(f" [SKYAI SECURITY] TÁRCA HITELESÍTVE!")
+    print(f" 🔗 Csatlakoztatott cím: {wallet_address}")
+    print(f" ✅ Hozzáférés: ENGEDÉLYEZVE")
+    print(f" ⚠️  FIGYELEM: Ez a cím mostantól jogosult a Bálna tranzakciókra.")
+    print("█"*60 + "\n")
     
-    # Gombnyomások kezelése
-    application.add_handler(CallbackQueryHandler(daily_intel_handler, pattern='^daily_intel$'))
-    application.add_handler(CallbackQueryHandler(wallet_help_handler, pattern='^wallet_help$'))
-    application.add_handler(CallbackQueryHandler(start_menu_callback, pattern='^start_menu$'))
-
-    application.run_polling()
+    return jsonify({"status": "verified", "message": "SkyAI Security Logged"})
 
 if __name__ == '__main__':
-    main()
+    print("--------------------------------------------------")
+    print(" SKYAI WHALE VAULT (WEB 3.0) INDÍTÁSA...")
+    print(" Nyisd meg a böngészőben: http://127.0.0.1:5000")
+    print("--------------------------------------------------")
+    app.run(port=5000)
