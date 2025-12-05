@@ -7,21 +7,25 @@ from telegram.ext import (
 )
 
 # --- KONFIGURÁCIÓ ---
+# FIGYELEM: Ez a Központi Bot tokenje (8486431467:AAEMJ87kuhbwzYl529ypndfD7LsrQ52Ekx4)
 TELEGRAM_BOT_TOKEN = '8486431467:AAEMJ87kuhbwzYl529ypndfD7LsrQ52Ekx4' 
 ADMIN_USER_ID = 1979330363 
 
-# WEB DASHBOARD URL-ek (GitHub Pages elérések)
-BASE_URL = "https://veresbarnabas97-ui.github.io/SkyAI2.4" 
+# WEB DASHBOARD URL-ek
+BASE_URL = "https://veresbarnabas97-ui.github.io/SkyAI" 
 
 DASHBOARD_LINKS = {
-    'sniper': f"{"https://veresbarnabas97-ui.github.io/SkyAISniper"}/SkyAISniper.html",
-    'whale': f"{HAMAROSAN...}/SkyAIWhale.html"
+    # Sniper Dashboard (Eredeti GitHub Pages link)
+    'sniper': f"{BASE_URL}/SkyAISniper.html",
+    # MÓDOSÍTVA: Whale Dashboard URL a lokális Flask szerver címére a felhasználó kérése alapján
+    'whale': "http://127.0.0.1:5000"
 }
 
-# TITKOS CSOPORT LINKEK
+# TITKOS CSOPORT LINKEK (A linkek nem case-sensitivek, de itt szerepel a felhasználó által megadott forma)
 BOT_LINKS = {
     'sniper': 'https://t.me/SkyAISniper_Bot',
-    'whale': 'https://t.me/SkyAiWhale_Bot'
+    # A link maradt a központi bot számára küldendő formában
+    'whale': 'https://t.me/SkyAIWhale_Bot' 
 }
 
 PAYMENT_INFO = {
@@ -35,7 +39,7 @@ DB_NAME = 'skyai_users.db'
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# --- ADATBÁZIS (Ugyanaz maradt, csak röviden) ---
+# --- ADATBÁZIS ---
 def init_db():
     conn = sqlite3.connect(DB_NAME)
     cursor = conn.cursor()
@@ -147,7 +151,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
-
-
-
